@@ -2,6 +2,10 @@
 name = "bevy_pkv"
 version = "0.1.0"
 edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Persistent key value store for bevy"
+keywords = ["gamedev", "key-value-store"]
+categories = ["game-development"]
 
 [dependencies]
 bevy = { version = "0.6", default-features = false }

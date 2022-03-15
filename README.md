@@ -32,7 +32,7 @@ Use it in a system:
 ```rust
 fn setup(mut pkv: ResMut<PkvStore>) {
     let has_run_before = pkv.get("has_run_before").is_ok();
-    if !has_run_before {
+    if has_run_before {
         if let Ok(username) = pkv.get("username") {
             info!("welcome back {username}");
         }

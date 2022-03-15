@@ -47,6 +47,8 @@ impl PkvStore {
         Ok(())
     }
 
+    /// Get the value for the given key
+    /// returns Err(GetError::NotFound) if the key does not exist in the key value store.
     pub fn get(&self, key: &str) -> Result<String, GetError> {
         let value = self.db.get(key)?.ok_or(GetError::NotFound)?;
         let value = bincode::deserialize(&value)?;

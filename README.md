@@ -11,6 +11,9 @@ around other crates.
 It's currently using sled + bincode for storage, I'm not sure if that's the best
 choice, but it will do for now.
 
+It currently creates a single global key value store when the plugin is
+initialized.
+
 ## TODO
 
 - Wasm implementation based on localstorage api

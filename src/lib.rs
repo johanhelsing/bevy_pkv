@@ -47,7 +47,7 @@ impl PkvStore {
         Ok(())
     }
 
-    pub fn get<T>(&mut self, key: &str) -> Result<String, GetError> {
+    pub fn get(&self, key: &str) -> Result<String, GetError> {
         let value = self.db.get(key)?.ok_or(GetError::NotFound)?;
         let value = bincode::deserialize(&value)?;
         Ok(value)

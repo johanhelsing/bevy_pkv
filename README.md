@@ -55,7 +55,8 @@ I intend to support the `main` branch of Bevy in the `bevy-main` branch.
 
 |bevy|bevy_pkv|
 |---|---|
-|0.6|main|
+|0.7|0.2,main|
+|0.6|0.1|
 
 ## License
 

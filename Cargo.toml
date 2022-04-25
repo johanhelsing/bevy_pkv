@@ -1,6 +1,6 @@
 [package]
 name = "bevy_pkv"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 authors = ["Johan Helsing <johanhelsing@gmail.com>"]
@@ -10,7 +10,7 @@ categories = ["game-development"]
 repository = "https://github.com/johanhelsing/bevy_pkv"
 
 [dependencies]
-bevy = { version = "0.6", default-features = false }
+bevy = { version = "0.7", default-features = false }
 sled = "0.34"
 thiserror = "1.0"
 bincode = "1.3"

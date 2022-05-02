@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use serde::{de::DeserializeOwned, Serialize};
 
 #[derive(Default)]
 pub struct PkvPlugin;
@@ -41,17 +42,17 @@ pub enum GetError {
 }
 
 impl PkvStore {
-    pub fn set(&mut self, key: &str, value: &str) -> Result<(), SetError> {
-        let value = bincode::serialize(value)?;
-        self.db.insert(key, value)?;
+    pub fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), SetError> {
+        let bytes = bincode::serialize(value)?;
+        self.db.insert(key, bytes)?;
         Ok(())
     }
 
     /// Get the value for the given key
     /// returns Err(GetError::NotFound) if the key does not exist in the key value store.
-    pub fn get(&self, key: &str) -> Result<String, GetError> {
-        let value = self.db.get(key)?.ok_or(GetError::NotFound)?;
-        let value = bincode::deserialize(&value)?;
+    pub fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, GetError> {
+        let bytes = self.db.get(key)?.ok_or(GetError::NotFound)?;
+        let value = bincode::deserialize(&bytes)?;
         Ok(value)
     }
 }

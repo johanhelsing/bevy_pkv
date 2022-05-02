@@ -18,7 +18,6 @@ initialized.
 
 - Wasm implementation based on localstorage api
 - Different scopes?
-- Typed getters/setters for serde types?
 
 ## Usage
 
@@ -55,7 +54,7 @@ I intend to support the `main` branch of Bevy in the `bevy-main` branch.
 
 |bevy|bevy_pkv|
 |---|---|
-|0.7|0.2,main|
+|0.7|0.2,0.3,main|
 |0.6|0.1|
 
 ## License

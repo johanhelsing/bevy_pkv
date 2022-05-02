@@ -33,18 +33,40 @@ Use it in a system:
 
 ```rust
 fn setup(mut pkv: ResMut<PkvStore>) {
-    let has_run_before = pkv.get("has_run_before").is_ok();
-    if has_run_before {
-        if let Ok(username) = pkv.get("username") {
-            info!("welcome back {username}");
-        }
+    if let Ok(username) = pkv.get::<String>("username") {
+        info!("Welcome back {username}");
     } else {
-        // <show tutorial>
-        pkv.set("has_run_before", "true").expect("failed to set has_run_before");
+        pkv.set_string("username", "alice")
+            .expect("failed to store username");
+
+        // alternatively, using the slightly less efficient generic api:
+        pkv.set("username", &"alice".to_string())
+            .expect("failed to store username");
     }
 }
 ```
 
+Using your own types implementing `serde::Serialize` and `Deserialize`:
+
+```rust
+#[derive(Serialize, Deserialize)]
+struct User {
+    name: String,
+}
+
+fn setup(mut pkv: ResMut<PkvStore>) {
+    if let Ok(user) = pkv.get::<User>("user") {
+        info!("Welcome back {}", user.name);
+    } else {
+        let user = User {
+            name: "bob".to_string(),
+        };
+        pkv.set("user", &user).expect("failed to store username");
+    }
+}
+```
+
+See the [examples](./examples) for further usage
 
 ## Bevy version support
 

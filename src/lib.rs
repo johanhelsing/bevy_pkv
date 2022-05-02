@@ -42,12 +42,14 @@ pub enum GetError {
 }
 
 impl PkvStore {
+    /// Serialize and store the value
     pub fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), SetError> {
         let bytes = bincode::serialize(value)?;
         self.db.insert(key, bytes)?;
         Ok(())
     }
 
+    /// More or less the same as set::<String>, but can take a &str
     pub fn set_string(&mut self, key: &str, value: &str) -> Result<(), SetError> {
         let bytes = bincode::serialize(value)?;
         self.db.insert(key, bytes)?;

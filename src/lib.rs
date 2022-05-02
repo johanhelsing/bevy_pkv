@@ -48,6 +48,12 @@ impl PkvStore {
         Ok(())
     }
 
+    pub fn set_string(&mut self, key: &str, value: &str) -> Result<(), SetError> {
+        let bytes = bincode::serialize(value)?;
+        self.db.insert(key, bytes)?;
+        Ok(())
+    }
+
     /// Get the value for the given key
     /// returns Err(GetError::NotFound) if the key does not exist in the key value store.
     pub fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, GetError> {

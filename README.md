@@ -1,6 +1,9 @@
 # bevy_pkv
 
+[![crates.io](https://img.shields.io/crates/v/bevy_pkv.svg)](https://crates.io/crates/bevy_pkv)
 ![MIT/Apache 2.0](https://img.shields.io/badge/license-MIT%2FApache-blue.svg)
+[![docs.rs](https://img.shields.io/docsrs/bevy_pkv)](https://docs.rs/bevy_pkv)
+[![ci](https://github.com/johanhelsing/bevy_pkv/actions/workflows/ci.yml/badge.svg)](https://github.com/johanhelsing/bevy_pkv/actions/workflows/ci.yml)
 
 Bevy pkv is a persistent key value store for bevy.
 

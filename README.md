@@ -5,17 +5,9 @@
 [![docs.rs](https://img.shields.io/docsrs/bevy_pkv)](https://docs.rs/bevy_pkv)
 [![ci](https://github.com/johanhelsing/bevy_pkv/actions/workflows/ci.yml/badge.svg)](https://github.com/johanhelsing/bevy_pkv/actions/workflows/ci.yml)
 
-Bevy pkv is a persistent key value store for bevy.
+bevy_pkv is a cross-platform persistent key value store for bevy.
 
-The end goal is to write something cross-platform (including web) that allows
-storing things like settings, save games etc. It should just be a thin wrapper
-around other crates.
-
-It's currently using sled + bincode for storage, I'm not sure if that's the best
-choice, but it will do for now.
-
-It currently creates a single global key value store when the plugin is
-initialized.
+Use it for storing things like settings, save games etc.
 
 ## Usage
 
@@ -28,7 +20,7 @@ App::new()
     .run();
 ```
 
-Use it in a system:
+This will create or load a single global key value store in the `PkvStore` resource, which can be used in bevy systems:
 
 ```rust
 fn setup(mut pkv: ResMut<PkvStore>) {
@@ -67,6 +59,16 @@ fn setup(mut pkv: ResMut<PkvStore>) {
 
 See the [examples](./examples) for further usage
 
+## Implementation details
+
+### Native
+
+`sled` and `bincode` is used for storage. It's creating a sled db in `bevy_pkv` in the current working directory.
+
+### Wasm
+
+`Window.localStorage` and `serde_json` is used for storage. Perhaps IndexedDb and something else would have been a better choice, but its API is complicated, and I wanted a simple implementation and a simple synchronous API.
+
 ## Bevy version support
 
 The `main` branch targets the latest bevy release.
@@ -75,7 +77,7 @@ I intend to support the `main` branch of Bevy in the `bevy-main` branch.
 
 |bevy|bevy_pkv|
 |---|---|
-|0.7|0.2,0.3,0.4,main|
+|0.7|0.2, 0.3, 0.4, main|
 |0.6|0.1|
 
 ## License

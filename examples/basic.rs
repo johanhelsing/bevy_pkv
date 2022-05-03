@@ -27,7 +27,7 @@ fn setup(mut pkv: ResMut<PkvStore>) {
         let user = User {
             name: "bob".to_string(),
         };
-        pkv.set("user", &user).expect("failed to store username");
+        pkv.set("user", &user).expect("failed to store User struct");
     }
 }
 

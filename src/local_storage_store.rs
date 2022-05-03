@@ -19,6 +19,8 @@ pub enum SetError {
 #[derive(Debug, Default)]
 pub struct LocalStorageStore;
 
+pub use LocalStorageStore as InnerStore;
+
 impl LocalStorageStore {
     fn storage(&self) -> web_sys::Storage {
         web_sys::window()
@@ -29,7 +31,10 @@ impl LocalStorageStore {
     }
 }
 
-impl StoreImpl<GetError, SetError> for LocalStorageStore {
+impl StoreImpl for LocalStorageStore {
+    type GetError = GetError;
+    type SetError = SetError;
+
     fn set_string(&mut self, key: &str, value: &str) -> Result<(), SetError> {
         let storage = self.storage();
         storage.set_item(key, value).map_err(SetError::SetItem)?;

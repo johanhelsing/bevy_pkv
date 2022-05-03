@@ -11,39 +11,38 @@ impl Plugin for PkvPlugin {
     }
 }
 
-trait StoreImpl<GetError, SetError> {
-    fn set_string(&mut self, key: &str, value: &str) -> Result<(), SetError> {
+trait StoreImpl {
+    type GetError;
+    type SetError;
+
+    fn set_string(&mut self, key: &str, value: &str) -> Result<(), Self::SetError> {
         self.set(key, &value.to_string())
     }
-    fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, GetError>;
-    fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), SetError>;
+    fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, Self::GetError>;
+    fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError>;
 }
 
 #[cfg(target_arch = "wasm32")]
 mod local_storage_store;
 
 #[cfg(target_arch = "wasm32")]
-pub use local_storage_store::{GetError, SetError};
+use local_storage_store::{self as backend};
 
 #[cfg(not(target_arch = "wasm32"))]
 mod sled_store;
 
 #[cfg(not(target_arch = "wasm32"))]
-pub use sled_store::{GetError, SetError};
+use sled_store::{self as backend};
+
+// todo: Look into unifying these types?
+pub use backend::{GetError, SetError};
 
 /// Main resource for setting/getting values
 ///
 /// Automatically inserted when adding `PkvPlugin`
 #[derive(Debug, Default)]
-#[cfg(target_arch = "wasm32")]
 pub struct PkvStore {
-    inner: local_storage_store::LocalStorageStore,
-}
-
-#[derive(Debug, Default)]
-#[cfg(not(target_arch = "wasm32"))]
-pub struct PkvStore {
-    inner: sled_store::SledStore,
+    inner: backend::InnerStore,
 }
 
 impl PkvStore {

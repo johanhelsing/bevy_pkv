@@ -6,6 +6,8 @@ pub struct SledStore {
     db: sled::Db,
 }
 
+pub use SledStore as InnerStore;
+
 #[derive(thiserror::Error, Debug)]
 pub enum GetError {
     #[error("Sled error")]
@@ -36,16 +38,19 @@ impl Default for SledStore {
     }
 }
 
-impl StoreImpl<GetError, SetError> for SledStore {
+impl StoreImpl for SledStore {
+    type GetError = GetError;
+    type SetError = SetError;
+
     /// Serialize and store the value
-    fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), SetError> {
+    fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError> {
         let bytes = bincode::serialize(value)?;
         self.db.insert(key, bytes)?;
         Ok(())
     }
 
     /// More or less the same as set::<String>, but can take a &str
-    fn set_string(&mut self, key: &str, value: &str) -> Result<(), SetError> {
+    fn set_string(&mut self, key: &str, value: &str) -> Result<(), Self::SetError> {
         let bytes = bincode::serialize(value)?;
         self.db.insert(key, bytes)?;
         Ok(())
@@ -53,8 +58,8 @@ impl StoreImpl<GetError, SetError> for SledStore {
 
     /// Get the value for the given key
     /// returns Err(GetError::NotFound) if the key does not exist in the key value store.
-    fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, GetError> {
-        let bytes = self.db.get(key)?.ok_or(GetError::NotFound)?;
+    fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, Self::GetError> {
+        let bytes = self.db.get(key)?.ok_or(Self::GetError::NotFound)?;
         let value = bincode::deserialize(&bytes)?;
         Ok(value)
     }

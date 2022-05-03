@@ -5,7 +5,7 @@
 [![docs.rs](https://img.shields.io/docsrs/bevy_pkv)](https://docs.rs/bevy_pkv)
 [![ci](https://github.com/johanhelsing/bevy_pkv/actions/workflows/ci.yml/badge.svg)](https://github.com/johanhelsing/bevy_pkv/actions/workflows/ci.yml)
 
-bevy_pkv is a cross-platform persistent key value store for bevy.
+bevy\_pkv is a cross-platform persistent key value store for bevy.
 
 Use it for storing things like settings, save games etc.
 
@@ -63,7 +63,7 @@ See the [examples](./examples) for further usage
 
 ### Native
 
-`sled` and `bincode` is used for storage. It's creating a sled db in `bevy_pkv` in the current working directory.
+`sled` and `rmp_serde` (MessagePack) is used for storage. It's creating a sled db in `bevy_pkv` in the current working directory.
 
 ### Wasm
 
@@ -75,7 +75,7 @@ The `main` branch targets the latest bevy release.
 
 I intend to support the `main` branch of Bevy in the `bevy-main` branch.
 
-|bevy|bevy_pkv|
+|bevy|bevy\_pkv|
 |---|---|
 |0.7|0.2, 0.3, 0.4, main|
 |0.6|0.1|

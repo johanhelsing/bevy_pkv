@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use serde::{de::DeserializeOwned, Serialize};
 
+/// Main plugin for the bevy_pkv crate
 #[derive(Default)]
 pub struct PkvPlugin;
 
@@ -16,12 +17,17 @@ pub struct PkvStore {
     db: sled::Db,
 }
 
+/// Main resource for setting/getting values
+///
+/// Automatically inserted when adding `PkvPlugin`
 #[cfg(target_arch = "wasm32")]
 #[derive(Debug)]
 pub struct PkvStore {}
 
 #[allow(clippy::derivable_impls)]
 impl Default for PkvStore {
+    // todo: maybe consider not exposing this, so people are not tempted
+    // to try to manually initialize stores?
     fn default() -> Self {
         #[cfg(not(target_arch = "wasm32"))]
         {

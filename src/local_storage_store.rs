@@ -1,5 +1,10 @@
 use crate::StoreImpl;
 
+#[derive(Debug, Default)]
+pub struct LocalStorageStore;
+
+pub use LocalStorageStore as InnerStore;
+
 #[derive(thiserror::Error, Debug)]
 pub enum GetError {
     #[error("No value found for the given key")]
@@ -15,11 +20,6 @@ pub enum SetError {
     #[error("Error serializing as json")]
     Json(#[from] serde_json::Error),
 }
-
-#[derive(Debug, Default)]
-pub struct LocalStorageStore;
-
-pub use LocalStorageStore as InnerStore;
 
 impl LocalStorageStore {
     fn storage(&self) -> web_sys::Storage {

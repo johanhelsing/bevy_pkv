@@ -7,7 +7,7 @@ struct User {
     name: String,
 }
 
-fn setup(mut pkv: NonSendMut<PkvStore>) {
+fn setup(mut pkv: ResMut<PkvStore>) {
     // strings
     if let Ok(username) = pkv.get::<String>("username") {
         info!("Welcome back {username}");

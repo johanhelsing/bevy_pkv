@@ -6,7 +6,7 @@ pub struct PkvPlugin;
 
 impl Plugin for PkvPlugin {
     fn build(&self, app: &mut App) {
-        app.init_non_send_resource::<PkvStore>();
+        app.init_resource::<PkvStore>();
     }
 }
 
@@ -18,21 +18,18 @@ pub struct PkvStore {
 
 #[cfg(target_arch = "wasm32")]
 #[derive(Debug)]
-pub struct PkvStore {
-    db: web_sys::Storage,
-}
+pub struct PkvStore {}
 
+#[allow(clippy::derivable_impls)]
 impl Default for PkvStore {
     fn default() -> Self {
         #[cfg(not(target_arch = "wasm32"))]
-        let db = sled::open("bevy_pkv.sled").expect("Failed to init key value store");
+        {
+            let db = sled::open("bevy_pkv.sled").expect("Failed to init key value store");
+            Self { db }
+        }
         #[cfg(target_arch = "wasm32")]
-        let db = web_sys::window()
-            .expect("No window")
-            .local_storage()
-            .expect("Failed to get local storage")
-            .expect("No local storage");
-        Self { db }
+        Self {}
     }
 }
 
@@ -74,6 +71,16 @@ pub enum GetError {
     GetItem(wasm_bindgen::JsValue),
 }
 
+#[cfg(target_arch = "wasm32")]
+fn get_local_storage() -> web_sys::Storage {
+    #[cfg(target_arch = "wasm32")]
+    web_sys::window()
+        .expect("No window")
+        .local_storage()
+        .expect("Failed to get local storage")
+        .expect("No local storage")
+}
+
 impl PkvStore {
     /// Serialize and store the value
     pub fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), SetError> {
@@ -86,7 +93,8 @@ impl PkvStore {
         #[cfg(target_arch = "wasm32")]
         {
             let json = serde_json::to_string(value)?;
-            self.db.set_item(key, &json).map_err(SetError::SetItem)?;
+            let db = get_local_storage();
+            db.set_item(key, &json).map_err(SetError::SetItem)?;
             Ok(())
         }
     }
@@ -101,7 +109,8 @@ impl PkvStore {
         }
         #[cfg(target_arch = "wasm32")]
         {
-            self.db.set_item(key, value).map_err(SetError::SetItem)?;
+            let db = get_local_storage();
+            db.set_item(key, value).map_err(SetError::SetItem)?;
             Ok(())
         }
     }
@@ -117,7 +126,8 @@ impl PkvStore {
         }
         #[cfg(target_arch = "wasm32")]
         {
-            let entry = self.db.get_item(key).map_err(GetError::GetItem)?;
+            let db = get_local_storage();
+            let entry = db.get_item(key).map_err(GetError::GetItem)?;
             let json = entry.as_ref().ok_or(GetError::NotFound)?;
             let value: T = serde_json::from_str(json).unwrap();
             Ok(value)

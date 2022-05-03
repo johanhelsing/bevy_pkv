@@ -77,17 +77,17 @@ pub enum GetError {
     GetItem(wasm_bindgen::JsValue),
 }
 
-#[cfg(target_arch = "wasm32")]
-fn get_local_storage() -> web_sys::Storage {
-    #[cfg(target_arch = "wasm32")]
-    web_sys::window()
-        .expect("No window")
-        .local_storage()
-        .expect("Failed to get local storage")
-        .expect("No local storage")
-}
-
 impl PkvStore {
+    #[cfg(target_arch = "wasm32")]
+    fn storage(&self) -> web_sys::Storage {
+        #[cfg(target_arch = "wasm32")]
+        web_sys::window()
+            .expect("No window")
+            .local_storage()
+            .expect("Failed to get local storage")
+            .expect("No local storage")
+    }
+
     /// Serialize and store the value
     pub fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), SetError> {
         #[cfg(not(target_arch = "wasm32"))]
@@ -99,8 +99,8 @@ impl PkvStore {
         #[cfg(target_arch = "wasm32")]
         {
             let json = serde_json::to_string(value)?;
-            let db = get_local_storage();
-            db.set_item(key, &json).map_err(SetError::SetItem)?;
+            let storage = self.storage();
+            storage.set_item(key, &json).map_err(SetError::SetItem)?;
             Ok(())
         }
     }
@@ -115,8 +115,8 @@ impl PkvStore {
         }
         #[cfg(target_arch = "wasm32")]
         {
-            let db = get_local_storage();
-            db.set_item(key, value).map_err(SetError::SetItem)?;
+            let storage = self.storage();
+            storage.set_item(key, value).map_err(SetError::SetItem)?;
             Ok(())
         }
     }
@@ -132,8 +132,8 @@ impl PkvStore {
         }
         #[cfg(target_arch = "wasm32")]
         {
-            let db = get_local_storage();
-            let entry = db.get_item(key).map_err(GetError::GetItem)?;
+            let storage = self.storage();
+            let entry = storage.get_item(key).map_err(GetError::GetItem)?;
             let json = entry.as_ref().ok_or(GetError::NotFound)?;
             let value: T = serde_json::from_str(json).unwrap();
             Ok(value)

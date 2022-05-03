@@ -12,8 +12,8 @@ pub use SledStore as InnerStore;
 pub enum GetError {
     #[error("Sled error")]
     Sled(#[from] sled::Error),
-    #[error("Bincode error")]
-    Bincode(#[from] bincode::Error),
+    #[error("MessagePack deserialization error")]
+    MessagePack(#[from] rmp_serde::decode::Error),
     #[error("No value found for the given key")]
     NotFound,
 }
@@ -22,8 +22,8 @@ pub enum GetError {
 pub enum SetError {
     #[error("Sled error")]
     Sled(#[from] sled::Error),
-    #[error("Bincode error")]
-    Bincode(#[from] bincode::Error),
+    #[error("MessagePack serialization error")]
+    MessagePack(#[from] rmp_serde::encode::Error),
 }
 
 impl Default for SledStore {
@@ -44,14 +44,14 @@ impl StoreImpl for SledStore {
 
     /// Serialize and store the value
     fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError> {
-        let bytes = bincode::serialize(value)?;
+        let bytes = rmp_serde::to_vec(value)?;
         self.db.insert(key, bytes)?;
         Ok(())
     }
 
     /// More or less the same as set::<String>, but can take a &str
     fn set_string(&mut self, key: &str, value: &str) -> Result<(), Self::SetError> {
-        let bytes = bincode::serialize(value)?;
+        let bytes = rmp_serde::to_vec(value)?;
         self.db.insert(key, bytes)?;
         Ok(())
     }
@@ -60,7 +60,7 @@ impl StoreImpl for SledStore {
     /// returns Err(GetError::NotFound) if the key does not exist in the key value store.
     fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, Self::GetError> {
         let bytes = self.db.get(key)?.ok_or(Self::GetError::NotFound)?;
-        let value = bincode::deserialize(&bytes)?;
+        let value = rmp_serde::from_slice(&bytes)?;
         Ok(value)
     }
 }

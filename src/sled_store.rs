@@ -44,8 +44,9 @@ impl StoreImpl for SledStore {
 
     /// Serialize and store the value
     fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError> {
-        let bytes = rmp_serde::to_vec(value)?;
-        self.db.insert(key, bytes)?;
+        let mut serializer = rmp_serde::Serializer::new(Vec::new()).with_struct_map();
+        value.serialize(&mut serializer)?;
+        self.db.insert(key, serializer.into_inner())?;
         Ok(())
     }
 

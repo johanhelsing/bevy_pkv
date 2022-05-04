@@ -2,12 +2,30 @@ use bevy::prelude::*;
 use serde::{de::DeserializeOwned, Serialize};
 
 /// Main plugin for the bevy_pkv crate
-#[derive(Default)]
-pub struct PkvPlugin;
+pub struct PkvPlugin {
+    store_config: StoreConfig,
+}
+
+impl PkvPlugin {
+    pub fn new(
+        qualifier: &str,
+        organization: &str,
+        application: &str
+    ) -> Self {
+        Self {
+            store_config: StoreConfig {
+                qualifier: qualifier.to_string(),
+                organization: organization.to_string(),
+                application: application.to_string(),
+            }
+        }
+    }
+}
 
 impl Plugin for PkvPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<PkvStore>();
+        let store = PkvStore::new(&self.store_config);
+        app.insert_resource(store);
     }
 }
 
@@ -40,12 +58,17 @@ pub use backend::{GetError, SetError};
 /// Main resource for setting/getting values
 ///
 /// Automatically inserted when adding `PkvPlugin`
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct PkvStore {
     inner: backend::InnerStore,
 }
 
 impl PkvStore {
+    fn new(config: &StoreConfig) -> Self {
+        let inner = backend::InnerStore::new(config);
+        Self { inner }
+    }
+
     /// Serialize and store the value
     pub fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), SetError> {
         self.inner.set(key, value)
@@ -61,4 +84,10 @@ impl PkvStore {
     pub fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, GetError> {
         self.inner.get(key)
     }
+}
+
+struct StoreConfig {
+    qualifier: String,
+    organization: String,
+    application: String,
 }

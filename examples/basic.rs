@@ -37,7 +37,7 @@ fn main() {
     console_error_panic_hook::set_once();
 
     App::new()
-        .add_plugin(PkvPlugin)
+        .add_plugin(PkvPlugin::new("com", "company", "game"))
         .add_plugins(DefaultPlugins)
         .add_startup_system(setup)
         .run();

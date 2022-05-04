@@ -1,5 +1,7 @@
-use crate::StoreImpl;
+use crate::{StoreImpl, StoreConfig};
 use serde::{de::DeserializeOwned, Serialize};
+use directories::ProjectDirs;
+use std::path::Path;
 
 #[derive(Debug)]
 pub struct SledStore {
@@ -26,15 +28,20 @@ pub enum SetError {
     MessagePack(#[from] rmp_serde::encode::Error),
 }
 
-impl Default for SledStore {
-    // todo: maybe consider not exposing this, so people are not tempted
-    // to try to manually initialize stores?
-    fn default() -> Self {
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            let db = sled::open("bevy_pkv.sled").expect("Failed to init key value store");
-            Self { db }
-        }
+impl SledStore {
+    pub(crate) fn new(config: &StoreConfig) -> Self {
+        let dirs = ProjectDirs::from(
+            &config.qualifier,
+            &config.organization,
+            &config.application
+        );
+        let parent_dir = match dirs.as_ref() {
+            Some(dirs) => dirs.data_dir(),
+            None => Path::new(".") // todo: maybe warn?
+        };
+        let db_path = parent_dir.join("bevy_pkv.sled");
+        let db = sled::open(db_path).expect("Failed to init key value store");
+        Self { db }
     }
 }
 

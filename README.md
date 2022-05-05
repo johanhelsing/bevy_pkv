@@ -5,22 +5,24 @@
 [![docs.rs](https://img.shields.io/docsrs/bevy_pkv)](https://docs.rs/bevy_pkv)
 [![ci](https://github.com/johanhelsing/bevy_pkv/actions/workflows/ci.yml/badge.svg)](https://github.com/johanhelsing/bevy_pkv/actions/workflows/ci.yml)
 
-bevy\_pkv is a cross-platform persistent key value store for bevy.
+bevy\_pkv is a cross-platform persistent key value store for rust apps.
 
 Use it for storing things like settings, save games etc.
 
+Currently, it does not depend on bevy, so it may be used in other games/apps as well.
+
 ## Usage
 
-Add the plugin to your app
+Add a store resource to your app
 
 ```rust
 App::new()
     .add_plugins(DefaultPlugins)
-    .add_plugin(PkvPlugin)
+    .insert_resource(PkvStore::new("FooCompany", "BarGame"))
     .run();
 ```
 
-This will create or load a single global key value store in the `PkvStore` resource, which can be used in bevy systems:
+This will create or load a store in the appropriate location for your system, and make it available to bevy systems:
 
 ```rust
 fn setup(mut pkv: ResMut<PkvStore>) {
@@ -77,7 +79,8 @@ I intend to support the `main` branch of Bevy in the `bevy-main` branch.
 
 |bevy|bevy\_pkv|
 |---|---|
-|0.7|0.2, 0.3, 0.4, main|
+|any|main|
+|0.7|0.2, 0.3, 0.4|
 |0.6|0.1|
 
 ## License

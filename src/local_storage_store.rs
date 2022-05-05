@@ -1,4 +1,4 @@
-use crate::StoreImpl;
+use crate::{StoreConfig, StoreImpl};
 
 #[derive(Debug, Default)]
 pub struct LocalStorageStore;
@@ -28,6 +28,10 @@ impl LocalStorageStore {
             .local_storage()
             .expect("Failed to get local storage")
             .expect("No local storage")
+    }
+
+    pub(crate) fn new(config: &StoreConfig) -> Self {
+        Self
     }
 }
 

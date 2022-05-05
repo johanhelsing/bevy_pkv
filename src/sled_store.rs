@@ -1,6 +1,6 @@
-use crate::{StoreImpl, StoreConfig};
-use serde::{de::DeserializeOwned, Serialize};
+use crate::{StoreConfig, StoreImpl};
 use directories::ProjectDirs;
+use serde::{de::DeserializeOwned, Serialize};
 use std::path::Path;
 
 #[derive(Debug)]
@@ -31,13 +31,13 @@ pub enum SetError {
 impl SledStore {
     pub(crate) fn new(config: &StoreConfig) -> Self {
         let dirs = ProjectDirs::from(
-            &config.qualifier,
+            config.qualifier.as_deref().unwrap_or(""),
             &config.organization,
-            &config.application
+            &config.application,
         );
         let parent_dir = match dirs.as_ref() {
             Some(dirs) => dirs.data_dir(),
-            None => Path::new(".") // todo: maybe warn?
+            None => Path::new("."), // todo: maybe warn?
         };
         let db_path = parent_dir.join("bevy_pkv.sled");
         let db = sled::open(db_path).expect("Failed to init key value store");

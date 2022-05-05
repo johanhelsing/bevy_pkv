@@ -10,7 +10,6 @@ categories = ["game-development"]
 repository = "https://github.com/johanhelsing/bevy_pkv"
 
 [dependencies]
-bevy = { version = "0.7", default-features = false }
 thiserror = "1.0"
 serde = "1.0"
 

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_pkv::{PkvPlugin, PkvStore};
+use bevy_pkv::PkvStore;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -37,7 +37,7 @@ fn main() {
     console_error_panic_hook::set_once();
 
     App::new()
-        .add_plugin(PkvPlugin::new("com", "company", "game"))
+        .insert_resource(PkvStore::new("company", "game"))
         .add_plugins(DefaultPlugins)
         .add_startup_system(setup)
         .run();

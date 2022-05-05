@@ -1,33 +1,4 @@
-use bevy::prelude::*;
 use serde::{de::DeserializeOwned, Serialize};
-
-/// Main plugin for the bevy_pkv crate
-pub struct PkvPlugin {
-    store_config: StoreConfig,
-}
-
-impl PkvPlugin {
-    pub fn new(
-        qualifier: &str,
-        organization: &str,
-        application: &str
-    ) -> Self {
-        Self {
-            store_config: StoreConfig {
-                qualifier: qualifier.to_string(),
-                organization: organization.to_string(),
-                application: application.to_string(),
-            }
-        }
-    }
-}
-
-impl Plugin for PkvPlugin {
-    fn build(&self, app: &mut App) {
-        let store = PkvStore::new(&self.store_config);
-        app.insert_resource(store);
-    }
-}
 
 trait StoreImpl {
     type GetError;
@@ -64,7 +35,25 @@ pub struct PkvStore {
 }
 
 impl PkvStore {
-    fn new(config: &StoreConfig) -> Self {
+    pub fn new(organization: &str, application: &str) -> Self {
+        let config = StoreConfig {
+            qualifier: None,
+            organization: organization.to_string(),
+            application: application.to_string(),
+        };
+        Self::new_from_config(&config)
+    }
+
+    pub fn new_with_qualifier(qualifier: &str, organization: &str, application: &str) -> Self {
+        let config = StoreConfig {
+            qualifier: Some(qualifier.to_string()),
+            organization: organization.to_string(),
+            application: application.to_string(),
+        };
+        Self::new_from_config(&config)
+    }
+
+    fn new_from_config(config: &StoreConfig) -> Self {
         let inner = backend::InnerStore::new(config);
         Self { inner }
     }
@@ -87,7 +76,7 @@ impl PkvStore {
 }
 
 struct StoreConfig {
-    qualifier: String,
+    qualifier: Option<String>,
     organization: String,
     application: String,
 }

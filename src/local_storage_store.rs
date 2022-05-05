@@ -1,7 +1,9 @@
 use crate::{StoreConfig, StoreImpl};
 
 #[derive(Debug, Default)]
-pub struct LocalStorageStore;
+pub struct LocalStorageStore {
+    prefix: String,
+}
 
 pub use LocalStorageStore as InnerStore;
 
@@ -31,7 +33,21 @@ impl LocalStorageStore {
     }
 
     pub(crate) fn new(config: &StoreConfig) -> Self {
-        Self
+        let StoreConfig {
+            qualifier,
+            organization,
+            application,
+        } = config;
+        Self {
+            prefix: match qualifier.as_deref() {
+                Some(qualifier) => format!("{qualifier}.{organization}.{application}"),
+                None => format!("{organization}.{application}"),
+            },
+        }
+    }
+
+    fn format_key(&self, key: &str) -> String {
+        format!("{}{}", self.prefix, key)
     }
 }
 
@@ -41,13 +57,15 @@ impl StoreImpl for LocalStorageStore {
 
     fn set_string(&mut self, key: &str, value: &str) -> Result<(), SetError> {
         let storage = self.storage();
-        storage.set_item(key, value).map_err(SetError::SetItem)?;
+        let key = self.format_key(key);
+        storage.set_item(&key, value).map_err(SetError::SetItem)?;
         Ok(())
     }
 
     fn get<T: serde::de::DeserializeOwned>(&self, key: &str) -> Result<T, GetError> {
         let storage = self.storage();
-        let entry = storage.get_item(key).map_err(GetError::GetItem)?;
+        let key = self.format_key(key);
+        let entry = storage.get_item(&key).map_err(GetError::GetItem)?;
         let json = entry.as_ref().ok_or(GetError::NotFound)?;
         let value: T = serde_json::from_str(json).unwrap();
         Ok(value)
@@ -56,7 +74,8 @@ impl StoreImpl for LocalStorageStore {
     fn set<T: serde::Serialize>(&mut self, key: &str, value: &T) -> Result<(), SetError> {
         let json = serde_json::to_string(value)?;
         let storage = self.storage();
-        storage.set_item(key, &json).map_err(SetError::SetItem)?;
+        let key = self.format_key(key);
+        storage.set_item(&key, &json).map_err(SetError::SetItem)?;
         Ok(())
     }
 }

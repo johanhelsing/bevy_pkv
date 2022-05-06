@@ -65,7 +65,7 @@ See the [examples](./examples) for further usage
 
 ### Native
 
-`sled` and `rmp_serde` (MessagePack) is used for storage. It's creating a sled db in `bevy_pkv` in the current working directory.
+`sled` and `rmp_serde` (MessagePack) is used for storage. It's creating a sled db in `bevy_pkv` in the appropriate application data directory for your system.
 
 ### Wasm
 

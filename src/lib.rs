@@ -1,15 +1,4 @@
-use bevy::prelude::*;
 use serde::{de::DeserializeOwned, Serialize};
-
-/// Main plugin for the bevy_pkv crate
-#[derive(Default)]
-pub struct PkvPlugin;
-
-impl Plugin for PkvPlugin {
-    fn build(&self, app: &mut App) {
-        app.init_resource::<PkvStore>();
-    }
-}
 
 trait StoreImpl {
     type GetError;
@@ -40,12 +29,35 @@ pub use backend::{GetError, SetError};
 /// Main resource for setting/getting values
 ///
 /// Automatically inserted when adding `PkvPlugin`
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct PkvStore {
     inner: backend::InnerStore,
 }
 
 impl PkvStore {
+    pub fn new(organization: &str, application: &str) -> Self {
+        let config = StoreConfig {
+            qualifier: None,
+            organization: organization.to_string(),
+            application: application.to_string(),
+        };
+        Self::new_from_config(&config)
+    }
+
+    pub fn new_with_qualifier(qualifier: &str, organization: &str, application: &str) -> Self {
+        let config = StoreConfig {
+            qualifier: Some(qualifier.to_string()),
+            organization: organization.to_string(),
+            application: application.to_string(),
+        };
+        Self::new_from_config(&config)
+    }
+
+    fn new_from_config(config: &StoreConfig) -> Self {
+        let inner = backend::InnerStore::new(config);
+        Self { inner }
+    }
+
     /// Serialize and store the value
     pub fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), SetError> {
         self.inner.set(key, value)
@@ -61,4 +73,10 @@ impl PkvStore {
     pub fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, GetError> {
         self.inner.get(key)
     }
+}
+
+struct StoreConfig {
+    qualifier: Option<String>,
+    organization: String,
+    application: String,
 }

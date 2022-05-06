@@ -16,7 +16,7 @@ mod native {
         c.bench_function("insert 100", |b| {
             b.iter_batched(
                 || {
-                    let store = PkvStore::default();
+                    let store = PkvStore::new("BevyPkv", "InsertBench");
                     let values = (0..100).map(|i| (i.to_string(), i.to_string())).collect();
                     // todo: clear the store here
                     (store, values)
@@ -42,8 +42,9 @@ mod wasm {
 
     impl Clone for HackStore {
         fn clone(&self) -> Self {
+            let store = PkvStore::new("BevyPkv", "InsertBench");
             // todo: clear store as well
-            Self(Default::default())
+            Self(store)
         }
     }
 

@@ -80,3 +80,45 @@ struct StoreConfig {
     organization: String,
     application: String,
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::PkvStore;
+    use serde::{Deserialize, Serialize};
+
+    // note: These tests use the real deal. Might be a good idea to clean the BevyPkv folder in .local/share
+    // to get fresh tests.
+
+    fn setup() {
+        // When building for WASM, print panics to the browser console
+        #[cfg(target_arch = "wasm32")]
+        console_error_panic_hook::set_once();
+    }
+
+    #[test]
+    fn set_string() {
+        setup();
+        let mut store = PkvStore::new("BevyPkv", "test_set_string");
+        store.set_string("hello", "goodbye").unwrap();
+        let ret = store.get::<String>("hello");
+        assert_eq!(ret.unwrap(), "goodbye");
+    }
+
+    #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+    struct User {
+        name: String,
+        age: u8,
+    }
+
+    #[test]
+    fn set() {
+        setup();
+        let mut store = PkvStore::new("BevyPkv", "test_set");
+        let user = User {
+            name: "alice".to_string(),
+            age: 32,
+        };
+        store.set("user", &user).unwrap();
+        assert_eq!(store.get::<User>("user").unwrap(), user);
+    }
+}

@@ -80,3 +80,26 @@ struct StoreConfig {
     organization: String,
     application: String,
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::PkvStore;
+
+    // note: These tests use the real deal. Might be a good idea to clean the BevyPkv folder in .local/share
+    // to get fresh tests.
+
+    fn setup() {
+        // When building for WASM, print panics to the browser console
+        #[cfg(target_arch = "wasm32")]
+        console_error_panic_hook::set_once();
+    }
+
+    #[test]
+    fn set_string_works() {
+        setup();
+        let mut store = PkvStore::new("BevyPkv", "Tests");
+        store.set_string("hello", "goodbye").unwrap();
+        let ret = store.get::<String>("hello");
+        assert_eq!(ret.unwrap(), "goodbye");
+    }
+}

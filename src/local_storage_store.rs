@@ -56,9 +56,10 @@ impl StoreImpl for LocalStorageStore {
     type SetError = SetError;
 
     fn set_string(&mut self, key: &str, value: &str) -> Result<(), SetError> {
+        let json = serde_json::to_string(value)?;
         let storage = self.storage();
         let key = self.format_key(key);
-        storage.set_item(&key, value).map_err(SetError::SetItem)?;
+        storage.set_item(&key, &json).map_err(SetError::SetItem)?;
         Ok(())
     }
 

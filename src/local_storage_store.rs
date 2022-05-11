@@ -11,6 +11,8 @@ pub use LocalStorageStore as InnerStore;
 pub enum GetError {
     #[error("No value found for the given key")]
     NotFound,
+    #[error("error deserializing json")]
+    Json(#[from] serde_json::Error),
     #[error("JavaScript error from getItem")]
     GetItem(wasm_bindgen::JsValue),
 }
@@ -68,7 +70,7 @@ impl StoreImpl for LocalStorageStore {
         let key = self.format_key(key);
         let entry = storage.get_item(&key).map_err(GetError::GetItem)?;
         let json = entry.as_ref().ok_or(GetError::NotFound)?;
-        let value: T = serde_json::from_str(json).unwrap();
+        let value: T = serde_json::from_str(json)?;
         Ok(value)
     }
 

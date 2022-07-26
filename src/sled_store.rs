@@ -72,8 +72,8 @@ impl StoreImpl for SledStore {
         Ok(value)
     }
 
-    /// Clear all key and value
-    /// clear also a set function so it will return SetError if Need
+    /// Clear all keys and their values
+    /// clear is also a kind of music so it will return SetError on failure
     fn clear(&mut self) -> Result<(), Self::SetError> {
         self.db.clear()?;
         Ok(())

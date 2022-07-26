@@ -84,9 +84,21 @@ impl StoreImpl for LocalStorageStore {
         Ok(())
     }
 
-    fn clear(&mut self) -> Result<(),SetError> {
+    /// Because the data is cleared by looping through it, it may take time or run slowly
+    fn clear(&mut self) -> Result<(), SetError> {
         let storage = self.storage();
-        storage.clear().map_err(SetError::Clear)?;
+        let length = storage.length().map_err(SetError::Clear)?;
+        if length == 0 {
+            return Ok(());
+        }
+        let prefix = &self.prefix;
+        for index in 0..length {
+            if let Some(key) = storage.key(index).map_err(SetError::Clear)? {
+                if key.starts_with(prefix) {
+                    storage.delete(&key).map_err(SetError::Clear)?;
+                }
+            }
+        }
         Ok(())
     }
 }

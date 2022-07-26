@@ -71,4 +71,11 @@ impl StoreImpl for SledStore {
         let value = rmp_serde::from_slice(&bytes)?;
         Ok(value)
     }
+
+    /// Clear all key and value
+    /// clear also a set function so it will return SetError if Need
+    fn clear(&mut self) -> Result<(), Self::SetError> {
+        self.db.clear()?;
+        Ok(())
+    }
 }

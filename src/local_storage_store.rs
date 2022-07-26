@@ -23,6 +23,8 @@ pub enum SetError {
     SetItem(wasm_bindgen::JsValue),
     #[error("Error serializing as json")]
     Json(#[from] serde_json::Error),
+    #[error("JavaScript error from clear")]
+    Clear(wasm_bindgen::JsValue),
 }
 
 impl LocalStorageStore {
@@ -79,6 +81,12 @@ impl StoreImpl for LocalStorageStore {
         let storage = self.storage();
         let key = self.format_key(key);
         storage.set_item(&key, &json).map_err(SetError::SetItem)?;
+        Ok(())
+    }
+
+    fn clear(&mut self) -> Result<(),SetError> {
+        let storage = self.storage();
+        storage.clear().map_err(SetError::Clear)?;
         Ok(())
     }
 }

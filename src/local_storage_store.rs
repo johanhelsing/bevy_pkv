@@ -88,9 +88,6 @@ impl StoreImpl for LocalStorageStore {
     fn clear(&mut self) -> Result<(), SetError> {
         let storage = self.storage();
         let length = storage.length().map_err(SetError::Clear)?;
-        if length == 0 {
-            return Ok(());
-        }
         let prefix = &self.prefix;
         for index in 0..length {
             if let Some(key) = storage.key(index).map_err(SetError::Clear)? {

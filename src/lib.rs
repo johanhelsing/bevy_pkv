@@ -9,6 +9,7 @@ trait StoreImpl {
     }
     fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, Self::GetError>;
     fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError>;
+    fn clear(&mut self) -> Result<(), Self::SetError>;
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -73,6 +74,12 @@ impl PkvStore {
     pub fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, GetError> {
         self.inner.get(key)
     }
+
+    /// Clear all key values data
+    /// returns Err(SetError) if clear error
+    pub fn clear(&mut self) -> Result<(), SetError> {
+        self.inner.clear()
+    }
 }
 
 struct StoreConfig {
@@ -102,6 +109,18 @@ mod tests {
         store.set_string("hello", "goodbye").unwrap();
         let ret = store.get::<String>("hello");
         assert_eq!(ret.unwrap(), "goodbye");
+    }
+
+    #[test]
+    fn clear() {
+        setup();
+        let mut store = PkvStore::new("BevyPkv", "test_clear");
+        store.set_string("key1", "goodbye").unwrap();
+        let ret = store.get::<String>("key1").unwrap();
+        assert_eq!(ret, "goodbye");
+        store.clear().unwrap();
+        let ret = store.get::<String>("key1").ok();
+        assert_eq!(ret, None)
     }
 
     #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]

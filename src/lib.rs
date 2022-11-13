@@ -1,5 +1,6 @@
 use serde::{de::DeserializeOwned, Serialize};
-use bevy_ecs::prelude::Resource;
+#[cfg(feature = "bevy")] use bevy_ecs::prelude::Resource;
+
 
 trait StoreImpl {
     type GetError;
@@ -31,7 +32,8 @@ pub use backend::{GetError, SetError};
 /// Main resource for setting/getting values
 ///
 /// Automatically inserted when adding `PkvPlugin`
-#[derive(Debug, Resource)]
+#[derive(Debug)]
+#[cfg_attr(feature = "bevy", derive(Resource))]
 pub struct PkvStore {
     inner: backend::InnerStore,
 }

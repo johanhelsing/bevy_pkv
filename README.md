@@ -79,7 +79,8 @@ I intend to support the `main` branch of Bevy in the `bevy-main` branch.
 
 |bevy|bevy\_pkv|
 |---|---|
-|any|0.5, main|
+|0.8|0.6, main|
+|0.8|0.5|
 |0.7|0.2, 0.3, 0.4|
 |0.6|0.1|
 

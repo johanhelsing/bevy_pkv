@@ -14,6 +14,10 @@ thiserror = "1.0"
 serde = "1.0"
 bevy_ecs = "0.9.0" # we need for deriving Resource in PkvStore
 
+[features]
+default = ["bevy"]
+bevy = []
+
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 web-sys = { version = "0.3", default-features = false, features = ["Storage", "Window"] }
 wasm-bindgen = { version = "0.2", default-features = false }

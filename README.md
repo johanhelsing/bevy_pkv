@@ -15,16 +15,22 @@ Currently, the Bevy dependency is optional, so it may be used in other games/app
 
 Add a store resource to your app
 
-```rust
+```rust no_run
+use bevy::prelude::*;
+use bevy_pkv::PkvStore;
+
+fn main() {
 App::new()
     .add_plugins(DefaultPlugins)
     .insert_resource(PkvStore::new("FooCompany", "BarGame"))
+    // ...insert systems etc.
     .run();
+}
 ```
 
 This will create or load a store in the appropriate location for your system, and make it available to bevy systems:
 
-```rust
+```rust ignore
 fn setup(mut pkv: ResMut<PkvStore>) {
     if let Ok(username) = pkv.get::<String>("username") {
         info!("Welcome back {username}");
@@ -41,7 +47,7 @@ fn setup(mut pkv: ResMut<PkvStore>) {
 
 Using your own types implementing `serde::Serialize` and `Deserialize`:
 
-```rust
+```rust ignore
 #[derive(Serialize, Deserialize)]
 struct User {
     name: String,

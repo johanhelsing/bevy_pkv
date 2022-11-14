@@ -9,22 +9,28 @@ bevy\_pkv is a cross-platform persistent key value store for rust apps.
 
 Use it for storing things like settings, save games etc.
 
-Currently, it does not depend on bevy, so it may be used in other games/apps as well.
+Currently, the Bevy dependency is optional, so it may be used in other games/apps as well.
 
-## Usage
+## Usage with Bevy
 
 Add a store resource to your app
 
-```rust
+```rust no_run
+use bevy::prelude::*;
+use bevy_pkv::PkvStore;
+
+fn main() {
 App::new()
     .add_plugins(DefaultPlugins)
     .insert_resource(PkvStore::new("FooCompany", "BarGame"))
+    // ...insert systems etc.
     .run();
+}
 ```
 
 This will create or load a store in the appropriate location for your system, and make it available to bevy systems:
 
-```rust
+```rust ignore
 fn setup(mut pkv: ResMut<PkvStore>) {
     if let Ok(username) = pkv.get::<String>("username") {
         info!("Welcome back {username}");
@@ -41,7 +47,7 @@ fn setup(mut pkv: ResMut<PkvStore>) {
 
 Using your own types implementing `serde::Serialize` and `Deserialize`:
 
-```rust
+```rust ignore
 #[derive(Serialize, Deserialize)]
 struct User {
     name: String,
@@ -60,6 +66,14 @@ fn setup(mut pkv: ResMut<PkvStore>) {
 ```
 
 See the [examples](./examples) for further usage
+
+## Usage without Bevy
+
+Disable the default features when adding the dependency:
+
+```toml
+bevy_pkv = {version = 0.7, default-features = false}
+```
 
 ## Implementation details
 

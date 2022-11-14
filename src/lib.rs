@@ -1,3 +1,6 @@
+#![warn(missing_docs)]
+#![doc = include_str!("../README.md")]
+
 use serde::{de::DeserializeOwned, Serialize};
 
 trait StoreImpl {
@@ -37,6 +40,10 @@ pub struct PkvStore {
 }
 
 impl PkvStore {
+    /// Creates or opens a pkv store
+    ///
+    /// The given `organization` and `application` are used to create a backing file
+    /// in a corresponding location on the users device. Usually within the home or user folder
     pub fn new(organization: &str, application: &str) -> Self {
         let config = StoreConfig {
             qualifier: None,
@@ -46,6 +53,11 @@ impl PkvStore {
         Self::new_from_config(&config)
     }
 
+    /// Creates or opens a pkv store
+    ///
+    /// Like [`PkvStore::new`], but also provide a qualifier.
+    /// Some operating systems use the qualifier as part of the path to the store.
+    /// The qualifier is usually "com", "org" etc.
     pub fn new_with_qualifier(qualifier: &str, organization: &str, application: &str) -> Self {
         let config = StoreConfig {
             qualifier: Some(qualifier.to_string()),

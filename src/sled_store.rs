@@ -10,20 +10,27 @@ pub struct SledStore {
 
 pub use SledStore as InnerStore;
 
+/// Errors that can occur during `PkvStore::get`
 #[derive(thiserror::Error, Debug)]
 pub enum GetError {
+    /// An internal error from the sled crate
     #[error("Sled error")]
     Sled(#[from] sled::Error),
+    /// Error when deserializing the value
     #[error("MessagePack deserialization error")]
     MessagePack(#[from] rmp_serde::decode::Error),
+    /// The value for the given key was not found
     #[error("No value found for the given key")]
     NotFound,
 }
 
+/// Errors that can occur during `PkvStore::set`
 #[derive(thiserror::Error, Debug)]
 pub enum SetError {
+    /// An internal error from the sled crate
     #[error("Sled error")]
     Sled(#[from] sled::Error),
+    /// Error when serializing the value
     #[error("MessagePack serialization error")]
     MessagePack(#[from] rmp_serde::encode::Error),
 }

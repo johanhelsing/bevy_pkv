@@ -31,6 +31,7 @@ pub use backend::{GetError, SetError};
 ///
 /// Automatically inserted when adding `PkvPlugin`
 #[derive(Debug)]
+#[cfg_attr(feature = "bevy", derive(bevy_ecs::prelude::Resource))]
 pub struct PkvStore {
     inner: backend::InnerStore,
 }

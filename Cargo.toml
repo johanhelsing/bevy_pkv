@@ -1,6 +1,6 @@
 [package]
 name = "bevy_pkv"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 authors = ["Johan Helsing <johanhelsing@gmail.com>"]
@@ -12,6 +12,11 @@ repository = "https://github.com/johanhelsing/bevy_pkv"
 [dependencies]
 thiserror = "1.0"
 serde = "1.0"
+bevy_ecs = "0.9.0" # we need for deriving Resource in PkvStore
+
+[features]
+default = ["bevy"]
+bevy = []
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 web-sys = { version = "0.3", default-features = false, features = ["Storage", "Window"] }
@@ -24,11 +29,11 @@ rmp-serde = "1.1"
 directories = "4.0"
 
 [dev-dependencies]
-bevy = { version = "0.7", default-features = false, features = [
+bevy = { version = "0.9", default-features = false, features = [
     "render", # need this, or will panic about gpu
     "bevy_winit", # without this, basic example will terminate immediately
     # "wayland" # wayland is the future for linux (and has less deps => faster ci)
-    "x11" # ... but github actions public runners don't have libxkbcommon :(
+    "x11", # ... but github actions public runners don't have libxkbcommon :(
 ] }
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]

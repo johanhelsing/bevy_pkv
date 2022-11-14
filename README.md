@@ -9,9 +9,9 @@ bevy\_pkv is a cross-platform persistent key value store for rust apps.
 
 Use it for storing things like settings, save games etc.
 
-Currently, it does not depend on bevy, so it may be used in other games/apps as well.
+Currently, the Bevy dependency is optional, so it may be used in other games/apps as well.
 
-## Usage
+## Usage with Bevy
 
 Add a store resource to your app
 
@@ -60,6 +60,14 @@ fn setup(mut pkv: ResMut<PkvStore>) {
 ```
 
 See the [examples](./examples) for further usage
+
+## Usage without Bevy
+
+Disable the default features when adding the dependency:
+
+```toml
+bevy_pkv = {version = 0.7, default-features = false}
+```
 
 ## Implementation details
 

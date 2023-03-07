@@ -12,7 +12,7 @@ repository = "https://github.com/johanhelsing/bevy_pkv"
 [dependencies]
 thiserror = "1.0"
 serde = "1.0"
-bevy_ecs = "0.9.0" # we need for deriving Resource in PkvStore
+bevy_ecs = "0.10" # we need for deriving Resource in PkvStore
 
 [features]
 default = ["bevy"]
@@ -29,8 +29,8 @@ rmp-serde = "1.1"
 directories = "4.0"
 
 [dev-dependencies]
-bevy = { version = "0.9", default-features = false, features = [
-    "render", # need this, or will panic about gpu
+bevy = { version = "0.10", default-features = false, features = [
+    "bevy_render", # for Color
     "bevy_winit", # without this, basic example will terminate immediately
     # "wayland" # wayland is the future for linux (and has less deps => faster ci)
     "x11", # ... but github actions public runners don't have libxkbcommon :(
@@ -41,7 +41,7 @@ console_error_panic_hook = "0.1"
 easybench-wasm = "0.2"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-criterion = { version = "0.3", features = ["html_reports"] }
+criterion = { version = "0.4", features = ["html_reports"] }
 
 [[bench]]
 name = "inserts"

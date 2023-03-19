@@ -22,10 +22,20 @@ mod local_storage_store;
 use local_storage_store::{self as backend};
 
 #[cfg(not(target_arch = "wasm32"))]
+#[cfg(not(feature = "rocksdb"))]
 mod sled_store;
 
 #[cfg(not(target_arch = "wasm32"))]
+#[cfg(not(feature = "rocksdb"))]
 use sled_store::{self as backend};
+
+#[cfg(not(target_arch = "wasm32"))]
+#[cfg(feature = "rocksdb")]
+mod rocksdb_store;
+
+#[cfg(not(target_arch = "wasm32"))]
+#[cfg(feature = "rocksdb")]
+use rocksdb_store::{self as backend};
 
 // todo: Look into unifying these types?
 pub use backend::{GetError, SetError};
@@ -128,12 +138,22 @@ mod tests {
     fn clear() {
         setup();
         let mut store = PkvStore::new("BevyPkv", "test_clear");
+
+        // More than 1 key-value pair was added to the test because the
+        // RocksDB adapter uses an iterator in order to implement .clear()
         store.set_string("key1", "goodbye").unwrap();
+        store.set_string("key2", "see yeah!").unwrap();
+
         let ret = store.get::<String>("key1").unwrap();
+        let ret2 = store.get::<String>("key2").unwrap();
+
         assert_eq!(ret, "goodbye");
+        assert_eq!(ret2, "see yeah!");
+
         store.clear().unwrap();
         let ret = store.get::<String>("key1").ok();
-        assert_eq!(ret, None)
+        let ret2 = store.get::<String>("key2").ok();
+        assert_eq!((ret, ret2), (None, None))
     }
 
     #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]

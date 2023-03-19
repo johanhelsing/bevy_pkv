@@ -99,8 +99,7 @@ impl StoreImpl for RocksDBStore {
         let kv_iter = self.db.iterator(rocksdb::IteratorMode::Start);
 
         for kv in kv_iter {
-            let result = kv?;
-            let key = result.0;
+            let (key, _) = kv?;
             let key = std::str::from_utf8(&key)?;
             self.db.delete(key)?;
         }

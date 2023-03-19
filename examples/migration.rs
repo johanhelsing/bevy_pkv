@@ -4,14 +4,14 @@
 //!
 //! And it's also a test to show that aliases do work
 
-use bevy::prelude::*;
+use bevy::{log::LogPlugin, prelude::*};
 use bevy_pkv::PkvStore;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 struct UserV1 {
     nick: String,
-    favorite_color: Color,
+    favorite_color: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -45,7 +45,7 @@ fn setup(mut pkv: ResMut<PkvStore>) {
     // Let's pretend someone has registered with the UserV1 definition
     let user_v1 = UserV1 {
         nick: "old bob".to_string(),
-        favorite_color: Color::BEIGE,
+        favorite_color: "beige".to_string(),
     };
     pkv.set("user", &user_v1)
         .expect("failed to store User struct");
@@ -64,7 +64,8 @@ fn main() {
 
     App::new()
         .insert_resource(PkvStore::new("BevyPkv", "MigrationExample"))
-        .add_plugins(DefaultPlugins)
+        .add_plugins(MinimalPlugins)
+        .add_plugin(LogPlugin::default())
         .add_startup_system(setup)
         .run();
 }

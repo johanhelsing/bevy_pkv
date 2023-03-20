@@ -14,11 +14,11 @@ thiserror = "1.0"
 serde = "1.0"
 rocksdb = { version = "0.20", optional = true }
 sled = { version = "0.34", optional = true }
-bevy_ecs = "0.10" # we need for deriving Resource in PkvStore
+bevy_ecs = { version = "0.10", optional = true } # we need for deriving Resource in PkvStore
 
 [features]
-default = ["bevy"]
-bevy = []
+default = ["bevy", "sled"]
+bevy = ["dep:bevy_ecs"]
 rocksdb = ["dep:rocksdb"]
 sled = ["dep:sled"]
 

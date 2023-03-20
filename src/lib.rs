@@ -15,26 +15,22 @@ trait StoreImpl {
     fn clear(&mut self) -> Result<(), Self::SetError>;
 }
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(wasm)]
 mod local_storage_store;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(wasm)]
 use local_storage_store::{self as backend};
 
-#[cfg(not(target_arch = "wasm32"))]
-#[cfg(not(feature = "rocksdb"))]
+#[cfg(sled_backend)]
 mod sled_store;
 
-#[cfg(not(target_arch = "wasm32"))]
-#[cfg(not(feature = "rocksdb"))]
+#[cfg(sled_backend)]
 use sled_store::{self as backend};
 
-#[cfg(not(target_arch = "wasm32"))]
-#[cfg(feature = "rocksdb")]
+#[cfg(rocksdb_backend)]
 mod rocksdb_store;
 
-#[cfg(not(target_arch = "wasm32"))]
-#[cfg(feature = "rocksdb")]
+#[cfg(rocksdb_backend)]
 use rocksdb_store::{self as backend};
 
 // todo: Look into unifying these types?

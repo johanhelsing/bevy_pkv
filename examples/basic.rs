@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{log::LogPlugin, prelude::*};
 use bevy_pkv::PkvStore;
 use serde::{Deserialize, Serialize};
 
@@ -38,7 +38,8 @@ fn main() {
 
     App::new()
         .insert_resource(PkvStore::new("BevyPkv", "BasicExample"))
-        .add_plugins(DefaultPlugins)
+        .add_plugins(MinimalPlugins)
+        .add_plugin(LogPlugin::default())
         .add_startup_system(setup)
         .run();
 }

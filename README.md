@@ -16,6 +16,7 @@ Currently, the Bevy dependency is optional, so it may be used in other games/app
 Add a store resource to your app
 
 ```rust no_run
+# #[cfg(feature = "bevy")] { // ignore this line
 use bevy::prelude::*;
 use bevy_pkv::PkvStore;
 
@@ -26,6 +27,7 @@ App::new()
     // ...insert systems etc.
     .run();
 }
+# }
 ```
 
 This will create or load a store in the appropriate location for your system, and make it available to bevy systems:

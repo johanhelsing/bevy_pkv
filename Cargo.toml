@@ -47,3 +47,11 @@ criterion = { version = "0.4", features = ["html_reports"] }
 [[bench]]
 name = "inserts"
 harness = false
+
+[[example]]
+name = "basic"
+required-features = ["bevy"]
+
+[[example]]
+name = "migration"
+required-features = ["bevy"]

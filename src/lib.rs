@@ -1,6 +1,12 @@
 #![warn(missing_docs)]
 #![doc = include_str!("../README.md")]
 
+#[cfg(all(rocksdb_backend, sled_backend))]
+compile_error!("the \"rocksdb\" and \"sled\" features may not be enabled at the same time");
+
+#[cfg(not(any(rocksdb_backend, sled_backend, wasm)))]
+compile_error!("either the \"rocksdb\" or \"sled\" feature must be enabled on native");
+
 use serde::{de::DeserializeOwned, Serialize};
 
 trait StoreImpl {

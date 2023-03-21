@@ -1,6 +1,12 @@
 #![warn(missing_docs)]
 #![doc = include_str!("../README.md")]
 
+#[cfg(all(rocksdb_backend, sled_backend))]
+compile_error!("the \"rocksdb\" and \"sled\" features may not be enabled at the same time");
+
+#[cfg(not(any(rocksdb_backend, sled_backend, wasm)))]
+compile_error!("either the \"rocksdb\" or \"sled\" feature must be enabled on native");
+
 use serde::{de::DeserializeOwned, Serialize};
 
 trait StoreImpl {
@@ -15,17 +21,23 @@ trait StoreImpl {
     fn clear(&mut self) -> Result<(), Self::SetError>;
 }
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(wasm)]
 mod local_storage_store;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(wasm)]
 use local_storage_store::{self as backend};
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(sled_backend)]
 mod sled_store;
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(sled_backend)]
 use sled_store::{self as backend};
+
+#[cfg(rocksdb_backend)]
+mod rocksdb_store;
+
+#[cfg(rocksdb_backend)]
+use rocksdb_store::{self as backend};
 
 // todo: Look into unifying these types?
 pub use backend::{GetError, SetError};
@@ -128,12 +140,22 @@ mod tests {
     fn clear() {
         setup();
         let mut store = PkvStore::new("BevyPkv", "test_clear");
+
+        // More than 1 key-value pair was added to the test because the
+        // RocksDB adapter uses an iterator in order to implement .clear()
         store.set_string("key1", "goodbye").unwrap();
+        store.set_string("key2", "see yeah!").unwrap();
+
         let ret = store.get::<String>("key1").unwrap();
+        let ret2 = store.get::<String>("key2").unwrap();
+
         assert_eq!(ret, "goodbye");
+        assert_eq!(ret2, "see yeah!");
+
         store.clear().unwrap();
         let ret = store.get::<String>("key1").ok();
-        assert_eq!(ret, None)
+        let ret2 = store.get::<String>("key2").ok();
+        assert_eq!((ret, ret2), (None, None))
     }
 
     #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]

@@ -21,10 +21,16 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Run cargo check
+      - name: cargo check sled
         uses: actions-rs/cargo@v1
         with:
           command: check
+
+      - name: cargo check rocksdb
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --no-default-features --features rocksdb
 
   test:
     name: Test Suite
@@ -40,10 +46,16 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Run cargo test
+      - name: cargo test sled
         uses: actions-rs/cargo@v1
         with:
           command: test
+
+      - name: cargo test rocksdb
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --no-default-features --features rocksdb
 
   lints:
     name: Lints
@@ -60,13 +72,13 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-      - name: Run cargo fmt
+      - name: cargo fmt
         uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
 
-      - name: Run cargo clippy
+      - name: cargo clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy

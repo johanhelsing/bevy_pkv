@@ -69,7 +69,7 @@ impl StoreImpl for RocksDBStore {
     fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError> {
         let mut serializer = rmp_serde::Serializer::new(Vec::new()).with_struct_map();
         value.serialize(&mut serializer)?;
-        self.db.put(&key, serializer.into_inner())?;
+        self.db.put(key, serializer.into_inner())?;
 
         Ok(())
     }

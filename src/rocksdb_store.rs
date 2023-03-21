@@ -1,7 +1,7 @@
 use crate::{StoreConfig, StoreImpl};
 use directories::ProjectDirs;
 use serde::{de::DeserializeOwned, Serialize};
-use std::{path::Path, str::Utf8Error};
+use std::path::Path;
 
 #[derive(Debug)]
 pub struct RocksDBStore {
@@ -33,9 +33,6 @@ pub enum SetError {
     /// Error when serializing the value
     #[error("MessagePack serialization error")]
     MessagePack(#[from] rmp_serde::encode::Error),
-    /// Invalid utf8 key name
-    #[error("Invalid RocksDB key name error")]
-    RocksdbKeyName(#[from] Utf8Error),
 }
 
 impl RocksDBStore {
@@ -100,7 +97,6 @@ impl StoreImpl for RocksDBStore {
 
         for kv in kv_iter {
             let (key, _) = kv?;
-            let key = std::str::from_utf8(&key)?;
             self.db.delete(key)?;
         }
 

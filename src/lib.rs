@@ -8,6 +8,7 @@ compile_error!("the \"rocksdb\" and \"sled\" features may not be enabled at the 
 compile_error!("either the \"rocksdb\" or \"sled\" feature must be enabled on native");
 
 use serde::{de::DeserializeOwned, Serialize};
+use std::path::Path;
 
 trait StoreImpl {
     type GetError;
@@ -79,8 +80,19 @@ impl PkvStore {
         Self::new_from_config(&config)
     }
 
+    /// Creates or opens a pkv store
+    ///
+    /// Like [`PkvStore::new`], but requires a direct path.
+    /// The `path` is used to create a backing file
+    /// in a corresponding location on the users device.
+    #[cfg(any(sled_backend, rocksdb_backend))]
+    pub fn new_with_path(path: &Path) -> Self {
+        let inner = backend::InnerStore::new(None, Some(path));
+        Self { inner }
+    }
+
     fn new_from_config(config: &StoreConfig) -> Self {
-        let inner = backend::InnerStore::new(config);
+        let inner = backend::InnerStore::new(Some(config), None);
         Self { inner }
     }
 
@@ -134,6 +146,26 @@ mod tests {
         store.set_string("hello", "goodbye").unwrap();
         let ret = store.get::<String>("hello");
         assert_eq!(ret.unwrap(), "goodbye");
+    }
+
+    #[cfg(any(sled_backend, rocksdb_backend))]
+    #[test]
+    fn new_with_path() {
+        setup();
+
+        let dirs = directories::ProjectDirs::from("", "BevyPkv", "test_new_with_path");
+        let parent_dir = match dirs.as_ref() {
+            Some(dirs) => dirs.data_dir(),
+            None => std::path::Path::new("."), // todo: maybe warn?
+        };
+
+        let mut store = PkvStore::new_with_path(parent_dir);
+
+        store
+            .set_string("hello_custom_path", "goodbye_custom_path")
+            .unwrap();
+        let ret = store.get::<String>("hello_custom_path");
+        assert_eq!(ret.unwrap(), "goodbye_custom_path");
     }
 
     #[test]

@@ -36,27 +36,32 @@ pub enum SetError {
 }
 
 impl RocksDBStore {
-    pub(crate) fn new(config: &StoreConfig) -> Self {
+    pub(crate) fn new(config: Option<&StoreConfig>, custom_path: Option<&Path>) -> Self {
         let mut options = rocksdb::Options::default();
         options.set_error_if_exists(false);
         options.create_if_missing(true);
         options.create_missing_column_families(true);
 
-        let dirs = ProjectDirs::from(
-            config.qualifier.as_deref().unwrap_or(""),
-            &config.organization,
-            &config.application,
-        );
+        let dirs = match config {
+            Some(config) => ProjectDirs::from(
+                config.qualifier.as_deref().unwrap_or(""),
+                &config.organization,
+                &config.application,
+            ),
+            None => None,
+        };
 
-        let parent_dir = match dirs.as_ref() {
+        let mut parent_dir = match dirs.as_ref() {
             Some(dirs) => dirs.data_dir(),
             None => Path::new("."), // todo: maybe warn?
         };
 
+        if let Some(path) = custom_path {
+            parent_dir = path;
+        }
+
         let db_path = parent_dir.join("bevy_rocksdb_pkv");
-
         let db = rocksdb::DB::open(&options, db_path).expect("Failed to init key value store");
-
         Self { db }
     }
 }

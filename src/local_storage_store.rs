@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use crate::{StoreConfig, StoreImpl};
 
 #[derive(Debug, Default)]
@@ -36,7 +38,8 @@ impl LocalStorageStore {
             .expect("No local storage")
     }
 
-    pub(crate) fn new(config: &StoreConfig) -> Self {
+    pub(crate) fn new(config: Option<&StoreConfig>, _custom_path: Option<&Path>) -> Self {
+        let config = config.expect("WASM: Config not provided");
         let StoreConfig {
             qualifier,
             organization,

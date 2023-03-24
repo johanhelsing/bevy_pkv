@@ -1,4 +1,4 @@
-use crate::{StoreConstructorBundle, StoreImpl};
+use crate::{Location, StoreImpl};
 use serde::{de::DeserializeOwned, Serialize};
 
 #[derive(Debug)]
@@ -34,7 +34,7 @@ pub enum SetError {
 }
 
 impl SledStore {
-    pub(crate) fn new(constructor_bundle: StoreConstructorBundle) -> Self {
+    pub(crate) fn new(constructor_bundle: Location) -> Self {
         let db_path = constructor_bundle.get_path().join("bevy_pkv.sled");
         let db = sled::open(db_path).expect("Failed to init key value store");
         Self { db }

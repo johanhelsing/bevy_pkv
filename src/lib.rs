@@ -43,17 +43,18 @@ use rocksdb_store::{self as backend};
 // todo: Look into unifying these types?
 pub use backend::{GetError, SetError};
 
-enum StoreConstructorBundle<'a> {
-    Config(&'a StoreConfig),
+enum Location<'a> {
+    DataDir(&'a StoreConfig),
+    #[cfg(any(sled_backend, rocksdb_backend))]
     CustomPath(&'a Path),
 }
 
 #[cfg(any(sled_backend, rocksdb_backend))]
-impl<'a> StoreConstructorBundle<'a> {
+impl<'a> Location<'a> {
     pub fn get_path(&self) -> std::path::PathBuf {
         match self {
             Self::CustomPath(path) => path.to_path_buf(),
-            Self::Config(config) => {
+            Self::DataDir(config) => {
                 let dirs = directories::ProjectDirs::from(
                     config.qualifier.as_deref().unwrap_or(""),
                     &config.organization,
@@ -112,13 +113,13 @@ impl PkvStore {
     /// The `path` is used to create a backing file
     /// in a corresponding location on the users device.
     #[cfg(any(sled_backend, rocksdb_backend))]
-    pub fn new_with_path<P: AsRef<Path>>(path: P) -> Self {
-        let inner = backend::InnerStore::new(StoreConstructorBundle::CustomPath(path.as_ref()));
+    pub fn new_in_dir<P: AsRef<Path>>(path: P) -> Self {
+        let inner = backend::InnerStore::new(Location::CustomPath(path.as_ref()));
         Self { inner }
     }
 
     fn new_from_config(config: &StoreConfig) -> Self {
-        let inner = backend::InnerStore::new(StoreConstructorBundle::Config(config));
+        let inner = backend::InnerStore::new(Location::DataDir(config));
         Self { inner }
     }
 
@@ -176,16 +177,16 @@ mod tests {
 
     #[cfg(any(sled_backend, rocksdb_backend))]
     #[test]
-    fn new_with_path() {
+    fn new_in_dir() {
         setup();
 
-        let dirs = directories::ProjectDirs::from("", "BevyPkv", "test_new_with_path");
+        let dirs = directories::ProjectDirs::from("", "BevyPkv", "test_new_in_dir");
         let parent_dir = match dirs.as_ref() {
             Some(dirs) => dirs.data_dir(),
             None => std::path::Path::new("."), // todo: maybe warn?
         };
 
-        let mut store = PkvStore::new_with_path(parent_dir);
+        let mut store = PkvStore::new_in_dir(parent_dir);
 
         store
             .set_string("hello_custom_path", "goodbye_custom_path")

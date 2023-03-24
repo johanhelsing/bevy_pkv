@@ -1,4 +1,4 @@
-use crate::{StoreConstructorBundle, StoreImpl};
+use crate::{Location, StoreImpl};
 use serde::{de::DeserializeOwned, Serialize};
 
 #[derive(Debug)]
@@ -34,7 +34,7 @@ pub enum SetError {
 }
 
 impl RocksDBStore {
-    pub(crate) fn new(constructor_bundle: StoreConstructorBundle) -> Self {
+    pub(crate) fn new(constructor_bundle: Location) -> Self {
         let mut options = rocksdb::Options::default();
         options.set_error_if_exists(false);
         options.create_if_missing(true);

@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::{StoreConfig, StoreImpl};
+use crate::{StoreConfig, StoreConstructorBundle, StoreImpl};
 
 #[derive(Debug, Default)]
 pub struct LocalStorageStore {
@@ -38,18 +38,21 @@ impl LocalStorageStore {
             .expect("No local storage")
     }
 
-    pub(crate) fn new(config: Option<&StoreConfig>, _custom_path: Option<&Path>) -> Self {
-        let config = config.expect("WASM: Config not provided");
-        let StoreConfig {
-            qualifier,
-            organization,
-            application,
-        } = config;
-        Self {
-            prefix: match qualifier.as_deref() {
-                Some(qualifier) => format!("{qualifier}.{organization}.{application}"),
-                None => format!("{organization}.{application}"),
-            },
+    pub(crate) fn new(constructor_bundle: StoreConstructorBundle) -> Self {
+        if let StoreConstructorBundle::Config(config) = constructor_bundle {
+            let StoreConfig {
+                qualifier,
+                organization,
+                application,
+            } = config;
+            Self {
+                prefix: match qualifier.as_deref() {
+                    Some(qualifier) => format!("{qualifier}.{organization}.{application}"),
+                    None => format!("{organization}.{application}"),
+                },
+            }
+        } else {
+            panic!("WASM: Config not found in StoreConstructorBundle")
         }
     }
 

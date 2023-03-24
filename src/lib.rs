@@ -43,6 +43,32 @@ use rocksdb_store::{self as backend};
 // todo: Look into unifying these types?
 pub use backend::{GetError, SetError};
 
+enum StoreConstructorBundle<'a> {
+    Config(&'a StoreConfig),
+    CustomPath(&'a Path),
+}
+
+#[cfg(any(sled_backend, rocksdb_backend))]
+impl<'a> StoreConstructorBundle<'a> {
+    pub fn get_path(&self) -> std::path::PathBuf {
+        match self {
+            Self::CustomPath(path) => path.to_path_buf(),
+            Self::Config(config) => {
+                let dirs = directories::ProjectDirs::from(
+                    config.qualifier.as_deref().unwrap_or(""),
+                    &config.organization,
+                    &config.application,
+                );
+                match dirs.as_ref() {
+                    Some(dirs) => dirs.data_dir(),
+                    None => Path::new("."), // todo: maybe warn?
+                }
+                .to_path_buf()
+            }
+        }
+    }
+}
+
 /// Main resource for setting/getting values
 ///
 /// Automatically inserted when adding `PkvPlugin`
@@ -86,13 +112,13 @@ impl PkvStore {
     /// The `path` is used to create a backing file
     /// in a corresponding location on the users device.
     #[cfg(any(sled_backend, rocksdb_backend))]
-    pub fn new_with_path(path: &Path) -> Self {
-        let inner = backend::InnerStore::new(None, Some(path));
+    pub fn new_with_path<P: AsRef<Path>>(path: P) -> Self {
+        let inner = backend::InnerStore::new(StoreConstructorBundle::CustomPath(path.as_ref()));
         Self { inner }
     }
 
     fn new_from_config(config: &StoreConfig) -> Self {
-        let inner = backend::InnerStore::new(Some(config), None);
+        let inner = backend::InnerStore::new(StoreConstructorBundle::Config(config));
         Self { inner }
     }
 

@@ -8,6 +8,8 @@ compile_error!("the \"rocksdb\" and \"sled\" features may not be enabled at the 
 compile_error!("either the \"rocksdb\" or \"sled\" feature must be enabled on native");
 
 use serde::{de::DeserializeOwned, Serialize};
+
+#[cfg(any(sled_backend, rocksdb_backend))]
 use std::path::Path;
 
 trait StoreImpl {
@@ -44,7 +46,7 @@ use rocksdb_store::{self as backend};
 pub use backend::{GetError, SetError};
 
 enum Location<'a> {
-    DataDir(&'a StoreConfig),
+    DataDir(&'a PlatformDefault),
     #[cfg(any(sled_backend, rocksdb_backend))]
     CustomPath(&'a Path),
 }
@@ -85,12 +87,12 @@ impl PkvStore {
     /// The given `organization` and `application` are used to create a backing file
     /// in a corresponding location on the users device. Usually within the home or user folder
     pub fn new(organization: &str, application: &str) -> Self {
-        let config = StoreConfig {
+        let config = PlatformDefault {
             qualifier: None,
             organization: organization.to_string(),
             application: application.to_string(),
         };
-        Self::new_from_config(&config)
+        Self::new_in_location(&config)
     }
 
     /// Creates or opens a pkv store
@@ -99,12 +101,12 @@ impl PkvStore {
     /// Some operating systems use the qualifier as part of the path to the store.
     /// The qualifier is usually "com", "org" etc.
     pub fn new_with_qualifier(qualifier: &str, organization: &str, application: &str) -> Self {
-        let config = StoreConfig {
+        let config = PlatformDefault {
             qualifier: Some(qualifier.to_string()),
             organization: organization.to_string(),
             application: application.to_string(),
         };
-        Self::new_from_config(&config)
+        Self::new_in_location(&config)
     }
 
     /// Creates or opens a pkv store
@@ -118,7 +120,7 @@ impl PkvStore {
         Self { inner }
     }
 
-    fn new_from_config(config: &StoreConfig) -> Self {
+    fn new_in_location(config: &PlatformDefault) -> Self {
         let inner = backend::InnerStore::new(Location::DataDir(config));
         Self { inner }
     }
@@ -146,7 +148,7 @@ impl PkvStore {
     }
 }
 
-struct StoreConfig {
+struct PlatformDefault {
     qualifier: Option<String>,
     organization: String,
     application: String,

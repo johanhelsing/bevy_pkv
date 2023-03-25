@@ -1,6 +1,4 @@
-use std::path::Path;
-
-use crate::{Location, StoreConfig, StoreImpl};
+use crate::{Location, PlatformDefault, StoreImpl};
 
 #[derive(Debug, Default)]
 pub struct LocalStorageStore {
@@ -40,7 +38,7 @@ impl LocalStorageStore {
 
     pub(crate) fn new(constructor_bundle: Location) -> Self {
         let Location::DataDir(config) = constructor_bundle;
-        let StoreConfig {
+        let PlatformDefault {
             qualifier,
             organization,
             application,

@@ -46,7 +46,7 @@ use rocksdb_store::{self as backend};
 pub use backend::{GetError, SetError};
 
 enum Location<'a> {
-    DataDir(&'a PlatformDefault),
+    PlatformDefault(&'a PlatformDefault),
     #[cfg(any(sled_backend, rocksdb_backend))]
     CustomPath(&'a Path),
 }
@@ -56,7 +56,7 @@ impl<'a> Location<'a> {
     pub fn get_path(&self) -> std::path::PathBuf {
         match self {
             Self::CustomPath(path) => path.to_path_buf(),
-            Self::DataDir(config) => {
+            Self::PlatformDefault(config) => {
                 let dirs = directories::ProjectDirs::from(
                     config.qualifier.as_deref().unwrap_or(""),
                     &config.organization,
@@ -121,7 +121,7 @@ impl PkvStore {
     }
 
     fn new_in_location(config: &PlatformDefault) -> Self {
-        let inner = backend::InnerStore::new(Location::DataDir(config));
+        let inner = backend::InnerStore::new(Location::PlatformDefault(config));
         Self { inner }
     }
 

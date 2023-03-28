@@ -37,7 +37,7 @@ impl LocalStorageStore {
     }
 
     pub(crate) fn new(constructor_bundle: Location) -> Self {
-        let Location::DataDir(config) = constructor_bundle;
+        let Location::PlatformDefault(config) = constructor_bundle;
         let PlatformDefault {
             qualifier,
             organization,

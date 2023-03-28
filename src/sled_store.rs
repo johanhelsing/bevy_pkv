@@ -34,8 +34,8 @@ pub enum SetError {
 }
 
 impl SledStore {
-    pub(crate) fn new(constructor_bundle: Location) -> Self {
-        let db_path = constructor_bundle.get_path().join("bevy_pkv.sled");
+    pub(crate) fn new(location: Location) -> Self {
+        let db_path = location.get_path().join("bevy_pkv.sled");
         let db = sled::open(db_path).expect("Failed to init key value store");
         Self { db }
     }

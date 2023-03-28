@@ -34,13 +34,13 @@ pub enum SetError {
 }
 
 impl RocksDBStore {
-    pub(crate) fn new(constructor_bundle: Location) -> Self {
+    pub(crate) fn new(location: Location) -> Self {
         let mut options = rocksdb::Options::default();
         options.set_error_if_exists(false);
         options.create_if_missing(true);
         options.create_missing_column_families(true);
 
-        let db_path = constructor_bundle.get_path().join("bevy_rocksdb_pkv");
+        let db_path = location.get_path().join("bevy_rocksdb_pkv");
         let db = rocksdb::DB::open(&options, db_path).expect("Failed to init key value store");
         Self { db }
     }

@@ -1,7 +1,5 @@
-use crate::{StoreConfig, StoreImpl};
-use directories::ProjectDirs;
+use crate::{Location, StoreImpl};
 use serde::{de::DeserializeOwned, Serialize};
-use std::path::Path;
 
 #[derive(Debug)]
 pub struct RocksDBStore {
@@ -36,27 +34,14 @@ pub enum SetError {
 }
 
 impl RocksDBStore {
-    pub(crate) fn new(config: &StoreConfig) -> Self {
+    pub(crate) fn new(location: Location) -> Self {
         let mut options = rocksdb::Options::default();
         options.set_error_if_exists(false);
         options.create_if_missing(true);
         options.create_missing_column_families(true);
 
-        let dirs = ProjectDirs::from(
-            config.qualifier.as_deref().unwrap_or(""),
-            &config.organization,
-            &config.application,
-        );
-
-        let parent_dir = match dirs.as_ref() {
-            Some(dirs) => dirs.data_dir(),
-            None => Path::new("."), // todo: maybe warn?
-        };
-
-        let db_path = parent_dir.join("bevy_rocksdb_pkv");
-
+        let db_path = location.get_path().join("bevy_rocksdb_pkv");
         let db = rocksdb::DB::open(&options, db_path).expect("Failed to init key value store");
-
         Self { db }
     }
 }

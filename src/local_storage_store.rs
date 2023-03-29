@@ -1,4 +1,4 @@
-use crate::{StoreConfig, StoreImpl};
+use crate::{Location, PlatformDefault, StoreImpl};
 
 #[derive(Debug, Default)]
 pub struct LocalStorageStore {
@@ -36,8 +36,9 @@ impl LocalStorageStore {
             .expect("No local storage")
     }
 
-    pub(crate) fn new(config: &StoreConfig) -> Self {
-        let StoreConfig {
+    pub(crate) fn new(constructor_bundle: Location) -> Self {
+        let Location::PlatformDefault(config) = constructor_bundle;
+        let PlatformDefault {
             qualifier,
             organization,
             application,

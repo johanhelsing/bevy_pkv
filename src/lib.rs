@@ -9,6 +9,9 @@ compile_error!("either the \"rocksdb\" or \"sled\" feature must be enabled on na
 
 use serde::{de::DeserializeOwned, Serialize};
 
+#[cfg(any(sled_backend, rocksdb_backend))]
+use std::path::Path;
+
 trait StoreImpl {
     type GetError;
     type SetError;
@@ -42,6 +45,33 @@ use rocksdb_store::{self as backend};
 // todo: Look into unifying these types?
 pub use backend::{GetError, SetError};
 
+enum Location<'a> {
+    PlatformDefault(&'a PlatformDefault),
+    #[cfg(any(sled_backend, rocksdb_backend))]
+    CustomPath(&'a Path),
+}
+
+#[cfg(any(sled_backend, rocksdb_backend))]
+impl<'a> Location<'a> {
+    pub fn get_path(&self) -> std::path::PathBuf {
+        match self {
+            Self::CustomPath(path) => path.to_path_buf(),
+            Self::PlatformDefault(config) => {
+                let dirs = directories::ProjectDirs::from(
+                    config.qualifier.as_deref().unwrap_or(""),
+                    &config.organization,
+                    &config.application,
+                );
+                match dirs.as_ref() {
+                    Some(dirs) => dirs.data_dir(),
+                    None => Path::new("."), // todo: maybe warn?
+                }
+                .to_path_buf()
+            }
+        }
+    }
+}
+
 /// Main resource for setting/getting values
 ///
 /// Automatically inserted when adding `PkvPlugin`
@@ -57,12 +87,12 @@ impl PkvStore {
     /// The given `organization` and `application` are used to create a backing file
     /// in a corresponding location on the users device. Usually within the home or user folder
     pub fn new(organization: &str, application: &str) -> Self {
-        let config = StoreConfig {
+        let config = PlatformDefault {
             qualifier: None,
             organization: organization.to_string(),
             application: application.to_string(),
         };
-        Self::new_from_config(&config)
+        Self::new_in_location(&config)
     }
 
     /// Creates or opens a pkv store
@@ -71,16 +101,27 @@ impl PkvStore {
     /// Some operating systems use the qualifier as part of the path to the store.
     /// The qualifier is usually "com", "org" etc.
     pub fn new_with_qualifier(qualifier: &str, organization: &str, application: &str) -> Self {
-        let config = StoreConfig {
+        let config = PlatformDefault {
             qualifier: Some(qualifier.to_string()),
             organization: organization.to_string(),
             application: application.to_string(),
         };
-        Self::new_from_config(&config)
+        Self::new_in_location(&config)
     }
 
-    fn new_from_config(config: &StoreConfig) -> Self {
-        let inner = backend::InnerStore::new(config);
+    /// Creates or opens a pkv store
+    ///
+    /// Like [`PkvStore::new`], but requires a direct path.
+    /// The `path` is used to create a backing file
+    /// in a corresponding location on the users device.
+    #[cfg(any(sled_backend, rocksdb_backend))]
+    pub fn new_in_dir<P: AsRef<Path>>(path: P) -> Self {
+        let inner = backend::InnerStore::new(Location::CustomPath(path.as_ref()));
+        Self { inner }
+    }
+
+    fn new_in_location(config: &PlatformDefault) -> Self {
+        let inner = backend::InnerStore::new(Location::PlatformDefault(config));
         Self { inner }
     }
 
@@ -107,7 +148,7 @@ impl PkvStore {
     }
 }
 
-struct StoreConfig {
+struct PlatformDefault {
     qualifier: Option<String>,
     organization: String,
     application: String,
@@ -134,6 +175,26 @@ mod tests {
         store.set_string("hello", "goodbye").unwrap();
         let ret = store.get::<String>("hello");
         assert_eq!(ret.unwrap(), "goodbye");
+    }
+
+    #[cfg(any(sled_backend, rocksdb_backend))]
+    #[test]
+    fn new_in_dir() {
+        setup();
+
+        let dirs = directories::ProjectDirs::from("", "BevyPkv", "test_new_in_dir");
+        let parent_dir = match dirs.as_ref() {
+            Some(dirs) => dirs.data_dir(),
+            None => std::path::Path::new("."), // todo: maybe warn?
+        };
+
+        let mut store = PkvStore::new_in_dir(parent_dir);
+
+        store
+            .set_string("hello_custom_path", "goodbye_custom_path")
+            .unwrap();
+        let ret = store.get::<String>("hello_custom_path");
+        assert_eq!(ret.unwrap(), "goodbye_custom_path");
     }
 
     #[test]

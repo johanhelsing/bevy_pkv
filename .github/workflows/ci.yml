@@ -7,11 +7,11 @@ on:
 name: ci
 
 jobs:
-  check:
-    name: Check
+  check-default:
+    name: Check default (sled)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout sources
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Install stable toolchain
@@ -19,20 +19,32 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Rust Cache
+      - name: Cache
         uses: Swatinem/rust-cache@v2
 
-      - name: cargo check sled
-        run: cargo check
+  check-rocksdb:
+    name: Check rocksdb
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: cargo check rocksdb
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check
         run: cargo check --no-default-features --features rocksdb
 
-  test:
-    name: Test Suite
+  test-default:
+    name: Test default (sled)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout sources
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Install stable toolchain
@@ -40,20 +52,35 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Rust Cache
+      - name: Cache
         uses: Swatinem/rust-cache@v2
 
-      - name: cargo test sled
+      - name: Test
         run: cargo test
 
-      - name: cargo test rocksdb
+  test-rocksdb:
+    name: Test rocksdb
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Test
         run: cargo test --no-default-features --features rocksdb
 
   lints:
     name: Lints
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout sources
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Install stable toolchain
@@ -62,11 +89,11 @@ jobs:
           toolchain: stable
           components: rustfmt, clippy
 
-      - name: Rust Cache
+      - name: Cache
         uses: Swatinem/rust-cache@v2
 
-      - name: cargo fmt
+      - name: Fmt
         run: cargo fmt --all -- --check
 
-      - name: cargo clippy
+      - name: Clippy
         run: cargo clippy -- -D warnings

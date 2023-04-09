@@ -9,9 +9,6 @@ compile_error!("either the \"rocksdb\" or \"sled\" feature must be enabled on na
 
 use serde::{de::DeserializeOwned, Serialize};
 
-#[cfg(any(sled_backend, rocksdb_backend))]
-use std::path::Path;
-
 trait StoreImpl {
     type GetError;
     type SetError;
@@ -48,29 +45,11 @@ pub use backend::{GetError, SetError};
 enum Location<'a> {
     PlatformDefault(&'a PlatformDefault),
     #[cfg(any(sled_backend, rocksdb_backend))]
-    CustomPath(&'a Path),
+    CustomPath(&'a std::path::Path),
 }
 
 #[cfg(any(sled_backend, rocksdb_backend))]
-impl<'a> Location<'a> {
-    pub fn get_path(&self) -> std::path::PathBuf {
-        match self {
-            Self::CustomPath(path) => path.to_path_buf(),
-            Self::PlatformDefault(config) => {
-                let dirs = directories::ProjectDirs::from(
-                    config.qualifier.as_deref().unwrap_or(""),
-                    &config.organization,
-                    &config.application,
-                );
-                match dirs.as_ref() {
-                    Some(dirs) => dirs.data_dir(),
-                    None => Path::new("."), // todo: maybe warn?
-                }
-                .to_path_buf()
-            }
-        }
-    }
-}
+mod path;
 
 /// Main resource for setting/getting values
 ///
@@ -115,7 +94,7 @@ impl PkvStore {
     /// The `path` is used to create a backing file
     /// in a corresponding location on the users device.
     #[cfg(any(sled_backend, rocksdb_backend))]
-    pub fn new_in_dir<P: AsRef<Path>>(path: P) -> Self {
+    pub fn new_in_dir<P: AsRef<std::path::Path>>(path: P) -> Self {
         let inner = backend::InnerStore::new(Location::CustomPath(path.as_ref()));
         Self { inner }
     }

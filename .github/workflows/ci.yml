@@ -19,6 +19,9 @@ jobs:
         with:
           toolchain: stable
 
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
       - name: cargo check sled
         run: cargo check
 
@@ -36,6 +39,9 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
 
       - name: cargo test sled
         run: cargo test
@@ -55,6 +61,9 @@ jobs:
         with:
           toolchain: stable
           components: rustfmt, clippy
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
 
       - name: cargo fmt
         run: cargo fmt --all -- --check

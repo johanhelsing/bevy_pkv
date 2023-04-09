@@ -53,7 +53,7 @@ mod wasm {
         {
             let values: Vec<(String, String)> =
                 (0..100).map(|i| (i.to_string(), i.to_string())).collect();
-            let env = (HackStore(PkvStore::default()), values);
+            let env = (HackStore(PkvStore::new("BevyPkv", "InsertBench")), values);
             console::log_1(
                 &format!(
                     "insert 100: {}",
@@ -65,7 +65,7 @@ mod wasm {
         {
             let values: Vec<(String, String)> =
                 (0..1000).map(|i| (i.to_string(), i.to_string())).collect();
-            let env = (HackStore(PkvStore::default()), values);
+            let env = (HackStore(PkvStore::new("BevyPkv", "InsertBench")), values);
             console::log_1(
                 &format!(
                     "insert 1000: {}",

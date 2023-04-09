@@ -1,15 +1,24 @@
 #![warn(missing_docs)]
 #![doc = include_str!("../README.md")]
 
-#[cfg(all(rocksdb_backend, sled_backend))]
+#[cfg(all(rocksdb, sled))]
 compile_error!("the \"rocksdb\" and \"sled\" features may not be enabled at the same time");
 
-#[cfg(not(any(rocksdb_backend, sled_backend, wasm)))]
+#[cfg(not(any(rocksdb, sled, wasm)))]
 compile_error!("either the \"rocksdb\" or \"sled\" feature must be enabled on native");
 
 use serde::{de::DeserializeOwned, Serialize};
 
-trait StoreImpl {
+/// Store implementations
+pub mod stores;
+
+pub use stores::{
+    default_store::{GetError, SetError},
+    DefaultStore,
+};
+
+// todo: make public?
+trait Store {
     type GetError;
     type SetError;
 
@@ -21,34 +30,13 @@ trait StoreImpl {
     fn clear(&mut self) -> Result<(), Self::SetError>;
 }
 
-#[cfg(wasm)]
-mod local_storage_store;
-
-#[cfg(wasm)]
-use local_storage_store::{self as backend};
-
-#[cfg(sled_backend)]
-mod sled_store;
-
-#[cfg(sled_backend)]
-use sled_store::{self as backend};
-
-#[cfg(rocksdb_backend)]
-mod rocksdb_store;
-
-#[cfg(rocksdb_backend)]
-use rocksdb_store::{self as backend};
-
-// todo: Look into unifying these types?
-pub use backend::{GetError, SetError};
-
 enum Location<'a> {
     PlatformDefault(&'a PlatformDefault),
-    #[cfg(any(sled_backend, rocksdb_backend))]
+    #[cfg(any(sled, rocksdb))]
     CustomPath(&'a std::path::Path),
 }
 
-#[cfg(any(sled_backend, rocksdb_backend))]
+#[cfg(any(sled, rocksdb))]
 mod path;
 
 /// Main resource for setting/getting values
@@ -57,7 +45,7 @@ mod path;
 #[derive(Debug)]
 #[cfg_attr(feature = "bevy", derive(bevy_ecs::prelude::Resource))]
 pub struct PkvStore {
-    inner: backend::InnerStore,
+    inner: DefaultStore,
 }
 
 impl PkvStore {
@@ -93,14 +81,14 @@ impl PkvStore {
     /// Like [`PkvStore::new`], but requires a direct path.
     /// The `path` is used to create a backing file
     /// in a corresponding location on the users device.
-    #[cfg(any(sled_backend, rocksdb_backend))]
+    #[cfg(any(sled, rocksdb))]
     pub fn new_in_dir<P: AsRef<std::path::Path>>(path: P) -> Self {
-        let inner = backend::InnerStore::new(Location::CustomPath(path.as_ref()));
+        let inner = DefaultStore::new(Location::CustomPath(path.as_ref()));
         Self { inner }
     }
 
     fn new_in_location(config: &PlatformDefault) -> Self {
-        let inner = backend::InnerStore::new(Location::PlatformDefault(config));
+        let inner = DefaultStore::new(Location::PlatformDefault(config));
         Self { inner }
     }
 
@@ -156,7 +144,7 @@ mod tests {
         assert_eq!(ret.unwrap(), "goodbye");
     }
 
-    #[cfg(any(sled_backend, rocksdb_backend))]
+    #[cfg(any(sled, rocksdb))]
     #[test]
     fn new_in_dir() {
         setup();

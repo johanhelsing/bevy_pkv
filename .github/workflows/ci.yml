@@ -22,6 +22,9 @@ jobs:
       - name: Cache
         uses: Swatinem/rust-cache@v2
 
+      - name: Check
+        run: cargo check --all-targets
+
   check-rocksdb:
     name: Check rocksdb
     runs-on: ubuntu-latest
@@ -38,7 +41,26 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Check
-        run: cargo check --no-default-features --features rocksdb
+        run: cargo check --all-targets --no-default-features --features rocksdb
+
+  check-wasm:
+    name: Check wasm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check
+        run: cargo check --target wasm32-unknown-unknown --all-targets
 
   test-default:
     name: Test default (sled)

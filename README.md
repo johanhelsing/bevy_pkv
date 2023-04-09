@@ -5,7 +5,7 @@
 [![docs.rs](https://img.shields.io/docsrs/bevy_pkv)](https://docs.rs/bevy_pkv)
 [![ci](https://github.com/johanhelsing/bevy_pkv/actions/workflows/ci.yml/badge.svg)](https://github.com/johanhelsing/bevy_pkv/actions/workflows/ci.yml)
 
-bevy\_pkv is a cross-platform persistent key value store for rust apps.
+`bevy_pkv` is a cross-platform persistent key value store for rust apps.
 
 Use it for storing things like settings, save games etc.
 
@@ -82,6 +82,8 @@ bevy_pkv = {version = 0.7, default-features = false}
 ### Native
 
 `sled` and `rmp_serde` (MessagePack) is used for storage. It's creating a sled db in `bevy_pkv` in the appropriate application data directory for your system.
+
+Alternatively, disable default-features and enable the `rocksdb` feature to use a RocksDB-based implementation.
 
 ### Wasm
 

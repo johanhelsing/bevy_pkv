@@ -52,8 +52,6 @@ enum Location<'a> {
 mod path;
 
 /// Main resource for setting/getting values
-///
-/// Automatically inserted when adding `PkvPlugin`
 #[derive(Debug)]
 #[cfg_attr(feature = "bevy", derive(bevy_ecs::prelude::Resource))]
 pub struct PkvStore {
@@ -61,7 +59,7 @@ pub struct PkvStore {
 }
 
 impl PkvStore {
-    /// Creates or opens a pkv store
+    /// Creates or opens a persistent key value store
     ///
     /// The given `organization` and `application` are used to create a backing file
     /// in a corresponding location on the users device. Usually within the home or user folder
@@ -74,7 +72,7 @@ impl PkvStore {
         Self::new_in_location(&config)
     }
 
-    /// Creates or opens a pkv store
+    /// Creates or opens a persistent key value store
     ///
     /// Like [`PkvStore::new`], but also provide a qualifier.
     /// Some operating systems use the qualifier as part of the path to the store.
@@ -88,7 +86,7 @@ impl PkvStore {
         Self::new_in_location(&config)
     }
 
-    /// Creates or opens a pkv store
+    /// Creates or opens a persistent key value store
     ///
     /// Like [`PkvStore::new`], but requires a direct path.
     /// The `path` is used to create a backing file

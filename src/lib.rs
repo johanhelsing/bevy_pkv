@@ -103,8 +103,8 @@ impl PkvStore {
     }
 
     /// Serialize and store the value
-    pub fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), SetError> {
-        self.inner.set(key, value)
+    pub fn set<T: Serialize>(&mut self, key: impl AsRef<str>, value: &T) -> Result<(), SetError> {
+        self.inner.set(key.as_ref(), value)
     }
 
     /// More or less the same as set::<String>, but can take a &str
@@ -114,8 +114,8 @@ impl PkvStore {
 
     /// Get the value for the given key
     /// returns Err(GetError::NotFound) if the key does not exist in the key value store.
-    pub fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, GetError> {
-        self.inner.get(key)
+    pub fn get<T: DeserializeOwned>(&self, key: impl AsRef<str>) -> Result<T, GetError> {
+        self.inner.get(key.as_ref())
     }
 
     /// Clear all key values data

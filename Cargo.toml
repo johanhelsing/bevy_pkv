@@ -33,6 +33,7 @@ directories = "5.0"
 
 [dev-dependencies]
 bevy = { version = "0.10", default-features = false }
+strum_macros = "*"
 
 [build-dependencies]
 cfg_aliases = "0.1"
@@ -56,3 +57,6 @@ required-features = ["bevy"]
 [[example]]
 name = "migration"
 required-features = ["bevy"]
+
+[[example]]
+name = "enumkeys"

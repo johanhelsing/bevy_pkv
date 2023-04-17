@@ -60,3 +60,4 @@ required-features = ["bevy"]
 
 [[example]]
 name = "enumkeys"
+required-features = ["bevy"]

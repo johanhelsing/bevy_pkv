@@ -108,8 +108,8 @@ impl PkvStore {
     }
 
     /// More or less the same as set::<String>, but can take a &str
-    pub fn set_string(&mut self, key: &str, value: &str) -> Result<(), SetError> {
-        self.inner.set_string(key, value)
+    pub fn set_string(&mut self, key: impl AsRef<str>, value: &str) -> Result<(), SetError> {
+        self.inner.set_string(key.as_ref(), value)
     }
 
     /// Get the value for the given key

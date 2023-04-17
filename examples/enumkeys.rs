@@ -9,25 +9,25 @@ struct User {
 
 fn setup(mut pkv: ResMut<PkvStore>) {
     // strings
-    if let Ok(username) = pkv.get::<String>("username") {
+    if let Ok(username) = pkv.get::<String>(PkvKeys::UserName) {
         info!("Welcome back {username}");
     } else {
-        pkv.set_string("username", "alice")
+        pkv.set_string(PkvKeys::UserName, "alice")
             .expect("failed to store username");
 
         // alternatively, using the slightly less efficient generic api:
-        pkv.set("username", &"alice".to_string())
+        pkv.set(PkvKeys::UserName, &"alice".to_string())
             .expect("failed to store username");
     }
 
     // serde types
-    if let Ok(user) = pkv.get::<User>(PKVKeys::User) {
+    if let Ok(user) = pkv.get::<User>(PkvKeys::User) {
         info!("Welcome back {}", user.name);
     } else {
         let user = User {
             name: "bob".to_string(),
         };
-        pkv.set(PKVKeys::User, &user)
+        pkv.set(PkvKeys::User, &user)
             .expect("failed to store User struct");
     }
 }
@@ -46,6 +46,7 @@ fn main() {
 }
 
 #[derive(strum_macros::AsRefStr)]
-enum PKVKeys {
+enum PkvKeys {
     User,
+    UserName,
 }

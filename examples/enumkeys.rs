@@ -38,7 +38,7 @@ fn main() {
     console_error_panic_hook::set_once();
 
     App::new()
-        .insert_resource(PkvStore::new("BevyPkv", "BasicExample"))
+        .insert_resource(PkvStore::new("BevyPkv", "EnumExample"))
         .add_plugins(MinimalPlugins)
         .add_plugin(LogPlugin::default())
         .add_startup_system(setup)

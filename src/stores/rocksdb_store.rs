@@ -1,19 +1,18 @@
 use crate::{Location, StoreImpl};
 use serde::{de::DeserializeOwned, Serialize};
 
+/// A store implemented using [`rocksdb`]
 #[derive(Debug)]
-pub struct SledStore {
-    db: sled::Db,
+pub struct RocksDbStore {
+    db: rocksdb::DB,
 }
-
-pub use SledStore as InnerStore;
 
 /// Errors that can occur during `PkvStore::get`
 #[derive(thiserror::Error, Debug)]
 pub enum GetError {
-    /// An internal error from the sled crate
-    #[error("Sled error")]
-    Sled(#[from] sled::Error),
+    /// An internal error from the rocksdb crate
+    #[error("Rocksdb error")]
+    Rocksdb(#[from] rocksdb::Error),
     /// Error when deserializing the value
     #[error("MessagePack deserialization error")]
     MessagePack(#[from] rmp_serde::decode::Error),
@@ -25,23 +24,28 @@ pub enum GetError {
 /// Errors that can occur during `PkvStore::set`
 #[derive(thiserror::Error, Debug)]
 pub enum SetError {
-    /// An internal error from the sled crate
-    #[error("Sled error")]
-    Sled(#[from] sled::Error),
+    /// An internal error from the rocksdb crate
+    #[error("Rocksdb error")]
+    Rocksdb(#[from] rocksdb::Error),
     /// Error when serializing the value
     #[error("MessagePack serialization error")]
     MessagePack(#[from] rmp_serde::encode::Error),
 }
 
-impl SledStore {
+impl RocksDbStore {
     pub(crate) fn new(location: Location) -> Self {
-        let db_path = location.get_path().join("bevy_pkv.sled");
-        let db = sled::open(db_path).expect("Failed to init key value store");
+        let mut options = rocksdb::Options::default();
+        options.set_error_if_exists(false);
+        options.create_if_missing(true);
+        options.create_missing_column_families(true);
+
+        let db_path = location.get_path().join("bevy_rocksdb_pkv");
+        let db = rocksdb::DB::open(&options, db_path).expect("Failed to init key value store");
         Self { db }
     }
 }
 
-impl StoreImpl for SledStore {
+impl StoreImpl for RocksDbStore {
     type GetError = GetError;
     type SetError = SetError;
 
@@ -49,14 +53,16 @@ impl StoreImpl for SledStore {
     fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError> {
         let mut serializer = rmp_serde::Serializer::new(Vec::new()).with_struct_map();
         value.serialize(&mut serializer)?;
-        self.db.insert(key, serializer.into_inner())?;
+        self.db.put(key, serializer.into_inner())?;
+
         Ok(())
     }
 
     /// More or less the same as set::<String>, but can take a &str
     fn set_string(&mut self, key: &str, value: &str) -> Result<(), Self::SetError> {
         let bytes = rmp_serde::to_vec(value)?;
-        self.db.insert(key, bytes)?;
+        self.db.put(key, bytes)?;
+
         Ok(())
     }
 
@@ -69,9 +75,15 @@ impl StoreImpl for SledStore {
     }
 
     /// Clear all keys and their values
-    /// clear is also a kind of store so it will return SetError on failure
+    /// The RocksDB adapter uses an iterator to achieve this, unlike sled
     fn clear(&mut self) -> Result<(), Self::SetError> {
-        self.db.clear()?;
+        let kv_iter = self.db.iterator(rocksdb::IteratorMode::Start);
+
+        for kv in kv_iter {
+            let (key, _) = kv?;
+            self.db.delete(key)?;
+        }
+
         Ok(())
     }
 }

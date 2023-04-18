@@ -30,16 +30,14 @@ fn existing_user_default_quest() -> Quest {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[derive(Default)]
 enum Quest {
+    #[default]
     Tutorial,
     SeekHolyGrail,
 }
 
-impl Default for Quest {
-    fn default() -> Self {
-        Quest::Tutorial
-    }
-}
+
 
 fn setup(mut pkv: ResMut<PkvStore>) {
     // Let's pretend someone has registered with the UserV1 definition

@@ -19,6 +19,7 @@ default = ["bevy", "sled"]
 bevy = ["dep:bevy_ecs"]
 rocksdb = ["dep:rocksdb"]
 sled = ["dep:sled"]
+pickledb=["dep:pickledb"]
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 web-sys = { version = "0.3", default-features = false, features = ["Storage", "Window"] }
@@ -30,6 +31,7 @@ rocksdb = { version = "0.20", optional = true }
 sled = { version = "0.34", optional = true }
 rmp-serde = "1.1"
 directories = "5.0"
+pickledb = { version = "0.5.1", optional = true }
 
 [dev-dependencies]
 bevy = { version = "0.10", default-features = false }

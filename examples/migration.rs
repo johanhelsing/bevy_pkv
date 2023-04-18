@@ -29,15 +29,12 @@ fn existing_user_default_quest() -> Quest {
     Quest::SeekHolyGrail
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(Default)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 enum Quest {
     #[default]
     Tutorial,
     SeekHolyGrail,
 }
-
-
 
 fn setup(mut pkv: ResMut<PkvStore>) {
     // Let's pretend someone has registered with the UserV1 definition

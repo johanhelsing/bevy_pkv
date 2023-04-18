@@ -19,7 +19,7 @@ default = ["bevy", "sled"]
 bevy = ["dep:bevy_ecs"]
 rocksdb = ["dep:rocksdb"]
 sled = ["dep:sled"]
-pickledb=["dep:pickledb"]
+pickledb = ["dep:pickledb"]
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 web-sys = { version = "0.3", default-features = false, features = ["Storage", "Window"] }

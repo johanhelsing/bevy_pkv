@@ -2,16 +2,16 @@ use crate::{Location, StoreImpl};
 use pickledb::{PickleDb, PickleDbDumpPolicy, SerializationMethod};
 use serde::{de::DeserializeOwned, Serialize};
 use std::fmt::{Debug, Formatter};
-pub struct PickleDBStore {
+pub struct PickleDbStore {
     db: PickleDb,
 }
-impl Debug for PickleDBStore {
+impl Debug for PickleDbStore {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
         writeln!(f, "Pickle DB")?;
         Ok(())
     }
 }
-pub use PickleDBStore as InnerStore;
+pub use PickleDbStore as InnerStore;
 
 /// Errors that can occur during `PkvStore::get`
 #[derive(thiserror::Error, Debug)]
@@ -29,7 +29,7 @@ pub enum SetError {
     PickleDb(#[from] pickledb::error::Error),
 }
 
-impl PickleDBStore {
+impl PickleDbStore {
     pub(crate) fn new(location: Location) -> Self {
         let db_path = location.get_path().join("bevy_pickledb_pkv");
         let db = PickleDb::new(
@@ -41,7 +41,7 @@ impl PickleDBStore {
     }
 }
 
-impl StoreImpl for PickleDBStore {
+impl StoreImpl for PickleDbStore {
     type GetError = GetError;
     type SetError = SetError;
 

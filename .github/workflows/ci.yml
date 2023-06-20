@@ -43,6 +43,24 @@ jobs:
       - name: Check
         run: cargo check --all-targets --no-default-features --features rocksdb
 
+  check-redb:
+    name: Check redb
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check
+        run: cargo check --all-targets --no-default-features --features redb
+
   check-wasm:
     name: Check wasm
     runs-on: ubuntu-latest
@@ -97,6 +115,24 @@ jobs:
 
       - name: Test
         run: cargo test --no-default-features --features rocksdb
+
+  test-redb:
+    name: Test redb
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Test
+        run: cargo test --no-default-features --features redb
 
   lints:
     name: Lints

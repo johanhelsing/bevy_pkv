@@ -81,9 +81,9 @@ bevy_pkv = {version = 0.7, default-features = false}
 
 ### Native
 
-`sled` and `rmp_serde` (MessagePack) is used for storage. It's creating a sled db in `bevy_pkv` in the appropriate application data directory for your system.
+`redb` and `rmp_serde` (MessagePack) is used for storage. It's creating a `bevy_pkv.redb` db in the appropriate application data directory for your system.
 
-Alternatively, disable default-features and enable the `rocksdb` feature to use a RocksDB-based implementation.
+Alternatively, disable default-features and enable the `rocksdb` feature to use a RocksDB-based implementation or `sled` feature to use sled db.
 
 ### Wasm
 

@@ -1,11 +1,13 @@
 #![warn(missing_docs)]
 #![doc = include_str!("../README.md")]
 
-#[cfg(all(rocksdb_backend, sled_backend))]
-compile_error!("the \"rocksdb\" and \"sled\" features may not be enabled at the same time");
+#[cfg(all(rocksdb_backend, sled_backend, redb_backend))]
+compile_error!(
+    "the \"rocksdb\", \"redb\" and \"sled\" features may not be enabled at the same time"
+);
 
-#[cfg(not(any(rocksdb_backend, sled_backend, wasm)))]
-compile_error!("either the \"rocksdb\" or \"sled\" feature must be enabled on native");
+#[cfg(not(any(rocksdb_backend, sled_backend, redb_backend, wasm)))]
+compile_error!("either the \"rocksdb\", \"redb\" or \"sled\" feature must be enabled on native");
 
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -44,11 +46,17 @@ pub use backend::{GetError, SetError};
 
 enum Location<'a> {
     PlatformDefault(&'a PlatformDefault),
-    #[cfg(any(sled_backend, rocksdb_backend))]
+    #[cfg(any(sled_backend, rocksdb_backend, redb_backend))]
     CustomPath(&'a std::path::Path),
 }
 
-#[cfg(any(sled_backend, rocksdb_backend))]
+#[cfg(redb_backend)]
+mod redb_store;
+
+#[cfg(redb_backend)]
+use redb_store::{self as backend};
+
+#[cfg(any(sled_backend, rocksdb_backend, redb_backend))]
 mod path;
 
 /// Main resource for setting/getting values
@@ -91,7 +99,7 @@ impl PkvStore {
     /// Like [`PkvStore::new`], but requires a direct path.
     /// The `path` is used to create a backing file
     /// in a corresponding location on the users device.
-    #[cfg(any(sled_backend, rocksdb_backend))]
+    #[cfg(any(sled_backend, rocksdb_backend, redb_backend))]
     pub fn new_in_dir<P: AsRef<std::path::Path>>(path: P) -> Self {
         let inner = backend::InnerStore::new(Location::CustomPath(path.as_ref()));
         Self { inner }
@@ -154,7 +162,7 @@ mod tests {
         assert_eq!(ret.unwrap(), "goodbye");
     }
 
-    #[cfg(any(sled_backend, rocksdb_backend))]
+    #[cfg(any(sled_backend, rocksdb_backend, redb_backend))]
     #[test]
     fn new_in_dir() {
         setup();

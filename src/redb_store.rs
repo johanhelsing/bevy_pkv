@@ -104,7 +104,7 @@ impl StoreImpl for ReDbStore {
         let table = read_txn.open_table(TABLE)?;
         let key = table.get(key)?.ok_or(Self::GetError::NotFound)?;
         let bytes = key.value();
-        let value = rmp_serde::from_slice(&bytes)?;
+        let value = rmp_serde::from_slice(bytes)?;
         Ok(value)
     }
 

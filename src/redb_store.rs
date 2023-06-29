@@ -17,14 +17,14 @@ pub use ReDbStore as InnerStore;
 #[derive(thiserror::Error, Debug)]
 pub enum GetError {
     /// An internal storage error from the `redb` crate
-    #[error("RedDbStorageError error")]
-    RedDbStorageError(#[from] redb::StorageError),
+    #[error("ReDbStorageError error")]
+    ReDbStorageError(#[from] redb::StorageError),
     /// An internal transaction error from the `redb` crate
-    #[error("RedDbTransactionError error")]
-    RedDbTransactionError(#[from] redb::TransactionError),
+    #[error("ReDbTransactionError error")]
+    ReDbTransactionError(#[from] redb::TransactionError),
     /// An internal table error from the `redb` crate
-    #[error("RedDbTableError error")]
-    RedDbTableError(#[from] redb::TableError),
+    #[error("ReDbTableError error")]
+    ReDbTableError(#[from] redb::TableError),
     /// The value for the given key was not found
     #[error("No value found for the given key")]
     NotFound,
@@ -37,17 +37,17 @@ pub enum GetError {
 #[derive(thiserror::Error, Debug)]
 pub enum SetError {
     /// An internal commit error from the `redb` crate
-    #[error("RedDbCommitError error")]
-    RedDbCommitError(#[from] redb::CommitError),
+    #[error("ReDbCommitError error")]
+    ReDbCommitError(#[from] redb::CommitError),
     /// An internal storage error from the `redb` crate
-    #[error("RedDbStorageError error")]
-    RedDbStorageError(#[from] redb::StorageError),
+    #[error("ReDbStorageError error")]
+    ReDbStorageError(#[from] redb::StorageError),
     /// An internal transaction error from the `redb` crate
-    #[error("RedDbTransactionError error")]
-    RedDbTransactionError(#[from] redb::TransactionError),
+    #[error("ReDbTransactionError error")]
+    ReDbTransactionError(#[from] redb::TransactionError),
     /// An internal table error from the `redb` crate
-    #[error("RedDbTableError error")]
-    RedDbTableError(#[from] redb::TableError),
+    #[error("ReDbTableError error")]
+    ReDbTableError(#[from] redb::TableError),
     /// Error when serializing the value
     #[error("MessagePack serialization error")]
     MessagePack(#[from] rmp_serde::encode::Error),

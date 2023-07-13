@@ -39,7 +39,7 @@ fn main() {
     App::new()
         .insert_resource(PkvStore::new("BevyPkv", "BasicExample"))
         .add_plugins(MinimalPlugins)
-        .add_plugin(LogPlugin::default())
-        .add_startup_system(setup)
+        .add_plugins(LogPlugin::default())
+        .add_systems(Startup, setup)
         .run();
 }

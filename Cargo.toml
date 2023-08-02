@@ -35,7 +35,7 @@ redb = { version = "1.0.1", optional = true }
 
 [dev-dependencies]
 bevy = { version = "0.11", default-features = false }
-strum_macros = "*"
+strum_macros = "0.25"
 
 [build-dependencies]
 cfg_aliases = "0.1"

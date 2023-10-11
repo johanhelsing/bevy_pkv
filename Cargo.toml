@@ -1,6 +1,6 @@
 [package]
 name = "bevy_pkv"
-version = "0.8.0"
+version = "0.9.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 authors = ["Johan Helsing <johanhelsing@gmail.com>"]
@@ -12,7 +12,7 @@ repository = "https://github.com/johanhelsing/bevy_pkv"
 [dependencies]
 thiserror = "1.0"
 serde = "1.0"
-bevy_ecs = { version = "0.11", optional = true } # we need for deriving Resource in PkvStore
+bevy_ecs = { version = "0.12", optional = true } # we need for deriving Resource in PkvStore
 
 [features]
 default = ["bevy", "redb"]
@@ -34,7 +34,7 @@ directories = "5.0"
 redb = { version = "1.0.1", optional = true }
 
 [dev-dependencies]
-bevy = { version = "0.11", default-features = false }
+bevy = { version = "0.12", default-features = false }
 strum_macros = "0.25"
 
 [build-dependencies]

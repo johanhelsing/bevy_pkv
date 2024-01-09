@@ -31,7 +31,7 @@ rocksdb = { version = "0.20", optional = true }
 sled = { version = "0.34", optional = true }
 rmp-serde = "1.1"
 directories = "5.0"
-redb = { version = "1.0.1", optional = true }
+redb = { version = "1.4", optional = true }
 
 [dev-dependencies]
 bevy = { version = "0.12", default-features = false }

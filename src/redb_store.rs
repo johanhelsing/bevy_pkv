@@ -60,6 +60,11 @@ impl ReDbStore {
             .expect("Failed to create directory to init key value store");
         let db_path = dir_path.join("bevy_pkv.redb");
         let db = Database::create(db_path).expect("Failed to init key value store");
+
+        let write_txn = db.begin_write().unwrap();
+        write_txn.open_table(TABLE).unwrap();
+        write_txn.commit().unwrap();
+
         Self { db }
     }
 }

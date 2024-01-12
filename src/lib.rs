@@ -182,6 +182,22 @@ mod tests {
         assert_eq!(ret.unwrap(), "goodbye_custom_path");
     }
 
+    #[cfg(any(sled_backend, rocksdb_backend, redb_backend))]
+    #[test]
+    fn empty_db_not_found() {
+        use crate::GetError;
+
+        setup();
+
+        let dir = tempfile::tempdir().expect("failed to create temp dir");
+        let store = PkvStore::new_in_dir(dir.path());
+
+        let err = store.get::<String>("not_there").unwrap_err();
+
+        // todo: Use assert_matches! when stable
+        assert!(matches!(err, GetError::NotFound));
+    }
+
     #[test]
     fn clear() {
         setup();

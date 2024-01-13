@@ -74,7 +74,7 @@ See the [examples](./examples) for further usage
 Disable the default features when adding the dependency:
 
 ```toml
-bevy_pkv = {version = 0.8, default-features = false}
+bevy_pkv = {version = "0.9", default-features = false}
 ```
 
 ## Implementation details

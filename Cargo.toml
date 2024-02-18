@@ -12,7 +12,7 @@ repository = "https://github.com/johanhelsing/bevy_pkv"
 [dependencies]
 thiserror = "1.0"
 serde = "1.0"
-bevy_ecs = { version = "0.12", optional = true } # we need for deriving Resource in PkvStore
+bevy_ecs = { version = "0.13", optional = true } # we need for deriving Resource in PkvStore
 
 [features]
 default = ["bevy", "redb"]
@@ -34,7 +34,7 @@ directories = "5.0"
 redb = { version = "1.4", optional = true }
 
 [dev-dependencies]
-bevy = { version = "0.12", default-features = false }
+bevy = { version = "0.13", default-features = false }
 strum_macros = "0.25"
 tempfile = "3"
 

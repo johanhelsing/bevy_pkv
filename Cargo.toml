@@ -22,24 +22,27 @@ sled = ["dep:sled"]
 redb = ["dep:redb"]
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-web-sys = { version = "0.3", default-features = false, features = ["Storage", "Window"] }
+web-sys = { version = "0.3", default-features = false, features = [
+    "Storage",
+    "Window",
+] }
 wasm-bindgen = { version = "0.2", default-features = false }
 serde_json = "1.0"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-rocksdb = { version = "0.20", optional = true }
+rocksdb = { version = "0.22.0", optional = true }
 sled = { version = "0.34", optional = true }
 rmp-serde = "1.1"
 directories = "5.0"
-redb = { version = "1.4", optional = true }
+redb = { version = "1.5.0", optional = true }
 
 [dev-dependencies]
 bevy = { version = "0.13", default-features = false }
-strum_macros = "0.25"
+strum_macros = "0.26.1"
 tempfile = "3"
 
 [build-dependencies]
-cfg_aliases = "0.1"
+cfg_aliases = "0.2.0"
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
 console_error_panic_hook = "0.1"
@@ -47,7 +50,7 @@ easybench-wasm = "0.2"
 web-sys = { version = "0.3", default-features = false, features = ["console"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-criterion = { version = "0.4", features = ["html_reports"] }
+criterion = { version = "0.5.1", features = ["html_reports"] }
 
 [[bench]]
 name = "inserts"

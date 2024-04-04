@@ -50,6 +50,7 @@ impl StoreImpl for SledStore {
         let mut serializer = rmp_serde::Serializer::new(Vec::new()).with_struct_map();
         value.serialize(&mut serializer)?;
         self.db.insert(key, serializer.into_inner())?;
+        self.db.flush()?;
         Ok(())
     }
 
@@ -57,6 +58,7 @@ impl StoreImpl for SledStore {
     fn set_string(&mut self, key: &str, value: &str) -> Result<(), Self::SetError> {
         let bytes = rmp_serde::to_vec(value)?;
         self.db.insert(key, bytes)?;
+        self.db.flush()?;
         Ok(())
     }
 
@@ -72,6 +74,7 @@ impl StoreImpl for SledStore {
     /// clear is also a kind of store so it will return SetError on failure
     fn clear(&mut self) -> Result<(), Self::SetError> {
         self.db.clear()?;
+        self.db.flush()?;
         Ok(())
     }
 }

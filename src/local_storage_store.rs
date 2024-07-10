@@ -93,7 +93,7 @@ impl StoreImpl for LocalStorageStore {
         for index in 0..length {
             if let Some(key) = storage.key(index).map_err(SetError::Clear)? {
                 if key.starts_with(prefix) {
-                    storage.delete(&key).map_err(SetError::Clear)?;
+                    storage.remove_item(&key).map_err(SetError::Clear)?;
                 }
             }
         }

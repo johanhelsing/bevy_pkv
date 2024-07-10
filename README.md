@@ -93,11 +93,10 @@ Alternatively, disable default-features and enable the `rocksdb` feature to use 
 
 The `main` branch targets the latest bevy release.
 
-I intend to support the `main` branch of Bevy in the `bevy-main` branch.
-
 |bevy|bevy\_pkv|
 |----|---|
-|0.13|0.10, main|
+|0.14|0.11, main|
+|0.13|0.10|
 |0.12|0.9|
 |0.11|0.8|
 |0.10|0.7|

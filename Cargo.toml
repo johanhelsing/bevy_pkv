@@ -11,8 +11,8 @@ repository = "https://github.com/johanhelsing/bevy_pkv"
 
 [dependencies]
 thiserror = "1.0"
-serde = "1.0"
-bevy_ecs = { version = "0.14", optional = true } # we need for deriving Resource in PkvStore
+serde = { version = "1.0", features = ["derive"] }
+bevy_ecs = { version = "0.14", optional = true }   # we need for deriving Resource in PkvStore
 
 [features]
 default = ["bevy", "redb"]

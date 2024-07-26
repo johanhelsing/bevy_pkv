@@ -90,7 +90,7 @@ impl StoreImpl for LocalStorageStore {
         let storage = self.storage();
         let length = storage.length().map_err(SetError::Clear)?;
         let prefix = &self.prefix;
-        for index in 0..length {
+        for index in (0..length).rev() {
             if let Some(key) = storage.key(index).map_err(SetError::Clear)? {
                 if key.starts_with(prefix) {
                     storage.remove_item(&key).map_err(SetError::Clear)?;

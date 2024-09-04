@@ -134,14 +134,17 @@ impl StoreImpl for ReDbStore {
         Ok(())
     }
 
-    fn remove_and_get<T: DeserializeOwned>(&mut self, key: &str) -> Result<Option<T>, Self::RemoveError> {
+    fn remove_and_get<T: DeserializeOwned>(
+        &mut self,
+        key: &str,
+    ) -> Result<Option<T>, Self::RemoveError> {
         let value: Option<T>;
         let write_txn = self.db.begin_write()?;
         {
             let mut table = write_txn.open_table(TABLE).unwrap();
-            value = match  table.remove(key)? {
-                Some(kv) => {rmp_serde::from_slice(kv.value()).ok()}
-                None => None 
+            value = match table.remove(key)? {
+                Some(kv) => rmp_serde::from_slice(kv.value()).ok(),
+                None => None,
             };
         }
         write_txn.commit()?;
@@ -154,7 +157,6 @@ impl StoreImpl for ReDbStore {
         {
             let mut table = write_txn.open_table(TABLE).unwrap();
             table.remove(key)?;
-
         }
         write_txn.commit()?;
 

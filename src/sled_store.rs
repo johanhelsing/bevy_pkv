@@ -33,6 +33,21 @@ pub enum SetError {
     MessagePack(#[from] rmp_serde::encode::Error),
 }
 
+/// Errors that can occur during `PkvStore::remove`
+#[derive(thiserror::Error, Debug)]
+pub enum RemoveError {
+    /// An internal error from the sled crate
+    #[error("Sled error")]
+    Sled(#[from] sled::Error),
+    /// Error when deserializing the value
+    #[error("MessagePack deserialization error")]
+    MessagePack(#[from] rmp_serde::decode::Error),
+    /// The value for the given key was not found
+    #[error("No value found for the given key")]
+    NotFound,
+}
+
+
 impl SledStore {
     pub(crate) fn new(location: Location) -> Self {
         let db_path = location.get_path().join("bevy_pkv.sled");
@@ -44,6 +59,7 @@ impl SledStore {
 impl StoreImpl for SledStore {
     type GetError = GetError;
     type SetError = SetError;
+    type RemoveError = RemoveError;
 
     /// Serialize and store the value
     fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError> {
@@ -76,5 +92,19 @@ impl StoreImpl for SledStore {
         self.db.clear()?;
         self.db.flush()?;
         Ok(())
+    }
+    
+    fn remove(&mut self, key: &str) -> Result<(), Self::RemoveError> {
+        self.db.remove(key)?;
+        Ok(())
+    }
+    
+    fn remove_and_get<T: DeserializeOwned>(
+        &mut self,
+        key: &str,
+    ) -> Result<Option<T>, Self::RemoveError> {
+        let bytes = self.db.remove(key)?.ok_or(Self::RemoveError::NotFound)?;
+        let value = rmp_serde::from_slice(&bytes)?;
+        Ok(value)
     }
 }

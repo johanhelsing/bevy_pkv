@@ -21,7 +21,6 @@ pub enum GetError {
     #[error("No value found for the given key")]
     NotFound,
 }
-
 /// Errors that can occur during `PkvStore::set`
 #[derive(thiserror::Error, Debug)]
 pub enum SetError {
@@ -31,6 +30,20 @@ pub enum SetError {
     /// Error when serializing the value
     #[error("MessagePack serialization error")]
     MessagePack(#[from] rmp_serde::encode::Error),
+}
+
+/// Errors that can occur during `PkvStore::remove`
+#[derive(thiserror::Error, Debug)]
+pub enum RemoveError {
+     /// An internal error from the rocksdb crate
+     #[error("Rocksdb error")]
+     Rocksdb(#[from] rocksdb::Error),
+     /// Error when deserializing the value
+     #[error("MessagePack deserialization error")]
+     MessagePack(#[from] rmp_serde::decode::Error),
+     /// The value for the given key was not found
+     #[error("No value found for the given key")]
+     NotFound,
 }
 
 impl RocksDBStore {
@@ -49,6 +62,7 @@ impl RocksDBStore {
 impl StoreImpl for RocksDBStore {
     type GetError = GetError;
     type SetError = SetError;
+    type RemoveError = RemoveError;
 
     /// Serialize and store the value
     fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError> {
@@ -86,5 +100,20 @@ impl StoreImpl for RocksDBStore {
         }
 
         Ok(())
+    }
+    
+    fn remove(&mut self, key: &str) -> Result<(), Self::RemoveError> {
+        self.db.delete(key)?;
+        Ok(())
+    }
+    
+    fn remove_and_get<T: DeserializeOwned>(
+        &mut self,
+        key: &str,
+    ) -> Result<Option<T>, Self::RemoveError> {
+        let bytes = self.db.get(key)?.ok_or(Self::RemoveError::NotFound)?;
+        let value = rmp_serde::from_slice(&bytes)?;
+        self.db.delete(key)?;
+        Ok(value)
     }
 }

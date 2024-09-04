@@ -33,6 +33,26 @@ pub enum GetError {
     MessagePack(#[from] rmp_serde::decode::Error),
 }
 
+/// Errors that can occur during `PkvStore::`
+#[derive(thiserror::Error, Debug)]
+pub enum RemoveError {
+    /// An internal commit error from the `redb` crate
+    #[error("ReDbCommitError error")]
+    ReDbCommitError(#[from] redb::CommitError),
+    /// An internal storage error from the `redb` crate
+    #[error("ReDbStorageError error")]
+    ReDbStorageError(#[from] redb::StorageError),
+    /// An internal transaction error from the `redb` crate
+    #[error("ReDbTransactionError error")]
+    ReDbTransactionError(#[from] redb::TransactionError),
+    /// An internal table error from the `redb` crate
+    #[error("ReDbTableError error")]
+    ReDbTableError(#[from] redb::TableError),
+    /// Error when serializing the value
+    #[error("MessagePack serialization error")]
+    MessagePack(#[from] rmp_serde::encode::Error),
+}
+
 /// Errors that can occur during `PkvStore::set`
 #[derive(thiserror::Error, Debug)]
 pub enum SetError {
@@ -74,20 +94,7 @@ const TABLE: TableDefinition<&str, &[u8]> = TableDefinition::new("redb");
 impl StoreImpl for ReDbStore {
     type GetError = GetError;
     type SetError = SetError;
-
-    /// Serialize and store the value
-    fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError> {
-        let mut serializer = rmp_serde::Serializer::new(Vec::new()).with_struct_map();
-        value.serialize(&mut serializer)?;
-        let write_txn = self.db.begin_write()?;
-        {
-            let mut table = write_txn.open_table(TABLE).unwrap();
-            table.insert(key, serializer.into_inner().as_slice())?;
-        }
-        write_txn.commit()?;
-
-        Ok(())
-    }
+    type RemoveError = RemoveError;
 
     /// More or less the same as set::<String>, but can take a &str
     fn set_string(&mut self, key: &str, value: &str) -> Result<(), Self::SetError> {
@@ -111,6 +118,47 @@ impl StoreImpl for ReDbStore {
         let bytes = key.value();
         let value = rmp_serde::from_slice(bytes)?;
         Ok(value)
+    }
+
+    /// Serialize and store the value
+    fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError> {
+        let mut serializer = rmp_serde::Serializer::new(Vec::new()).with_struct_map();
+        value.serialize(&mut serializer)?;
+        let write_txn = self.db.begin_write()?;
+        {
+            let mut table = write_txn.open_table(TABLE).unwrap();
+            table.insert(key, serializer.into_inner().as_slice())?;
+        }
+        write_txn.commit()?;
+
+        Ok(())
+    }
+
+    fn remove_and_get<T: DeserializeOwned>(&mut self, key: &str) -> Result<Option<T>, Self::RemoveError> {
+        let value: Option<T>;
+        let write_txn = self.db.begin_write()?;
+        {
+            let mut table = write_txn.open_table(TABLE).unwrap();
+            value = match  table.remove(key)? {
+                Some(kv) => {rmp_serde::from_slice(kv.value()).ok()}
+                None => None 
+            };
+        }
+        write_txn.commit()?;
+
+        Ok(value)
+    }
+
+    fn remove(&mut self, key: &str) -> Result<(), Self::RemoveError> {
+        let write_txn = self.db.begin_write()?;
+        {
+            let mut table = write_txn.open_table(TABLE).unwrap();
+            table.remove(key)?;
+
+        }
+        write_txn.commit()?;
+
+        Ok(())
     }
 
     /// Clear all keys and their values

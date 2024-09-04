@@ -35,15 +35,15 @@ pub enum SetError {
 /// Errors that can occur during `PkvStore::remove`
 #[derive(thiserror::Error, Debug)]
 pub enum RemoveError {
-     /// An internal error from the rocksdb crate
-     #[error("Rocksdb error")]
-     Rocksdb(#[from] rocksdb::Error),
-     /// Error when deserializing the value
-     #[error("MessagePack deserialization error")]
-     MessagePack(#[from] rmp_serde::decode::Error),
-     /// The value for the given key was not found
-     #[error("No value found for the given key")]
-     NotFound,
+    /// An internal error from the rocksdb crate
+    #[error("Rocksdb error")]
+    Rocksdb(#[from] rocksdb::Error),
+    /// Error when deserializing the value
+    #[error("MessagePack deserialization error")]
+    MessagePack(#[from] rmp_serde::decode::Error),
+    /// The value for the given key was not found
+    #[error("No value found for the given key")]
+    NotFound,
 }
 
 impl RocksDBStore {
@@ -101,12 +101,12 @@ impl StoreImpl for RocksDBStore {
 
         Ok(())
     }
-    
+
     fn remove(&mut self, key: &str) -> Result<(), Self::RemoveError> {
         self.db.delete(key)?;
         Ok(())
     }
-    
+
     fn remove_and_get<T: DeserializeOwned>(
         &mut self,
         key: &str,

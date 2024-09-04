@@ -27,7 +27,6 @@ pub enum SetError {
     Clear(wasm_bindgen::JsValue),
 }
 
-
 #[derive(thiserror::Error, Debug)]
 pub enum RemoveError {
     #[error("No value found for the given key")]
@@ -113,14 +112,14 @@ impl StoreImpl for LocalStorageStore {
         }
         Ok(())
     }
-    
+
     fn remove(&mut self, key: &str) -> Result<(), Self::RemoveError> {
         let storage = self.storage();
         let key = self.format_key(key);
         storage.remove_item(&key).map_err(RemoveError::Clear)?;
         Ok(())
     }
-    
+
     fn remove_and_get<T: serde::de::DeserializeOwned>(
         &mut self,
         key: &str,

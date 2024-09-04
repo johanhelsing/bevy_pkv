@@ -47,7 +47,6 @@ pub enum RemoveError {
     NotFound,
 }
 
-
 impl SledStore {
     pub(crate) fn new(location: Location) -> Self {
         let db_path = location.get_path().join("bevy_pkv.sled");
@@ -93,12 +92,12 @@ impl StoreImpl for SledStore {
         self.db.flush()?;
         Ok(())
     }
-    
+
     fn remove(&mut self, key: &str) -> Result<(), Self::RemoveError> {
         self.db.remove(key)?;
         Ok(())
     }
-    
+
     fn remove_and_get<T: DeserializeOwned>(
         &mut self,
         key: &str,

@@ -14,12 +14,18 @@ use serde::{de::DeserializeOwned, Serialize};
 trait StoreImpl {
     type GetError;
     type SetError;
+    type RemoveError;
 
     fn set_string(&mut self, key: &str, value: &str) -> Result<(), Self::SetError> {
         self.set(key, &value.to_string())
     }
     fn get<T: DeserializeOwned>(&self, key: &str) -> Result<T, Self::GetError>;
     fn set<T: Serialize>(&mut self, key: &str, value: &T) -> Result<(), Self::SetError>;
+    fn remove(&mut self, key: &str) -> Result<(), Self::RemoveError>;
+    fn remove_and_get<T: DeserializeOwned>(
+        &mut self,
+        key: &str,
+    ) -> Result<Option<T>, Self::RemoveError>;
     fn clear(&mut self) -> Result<(), Self::SetError>;
 }
 
@@ -42,7 +48,7 @@ mod rocksdb_store;
 use rocksdb_store::{self as backend};
 
 // todo: Look into unifying these types?
-pub use backend::{GetError, SetError};
+pub use backend::{GetError, RemoveError, SetError};
 
 enum Location<'a> {
     PlatformDefault(&'a PlatformDefault),
@@ -124,6 +130,18 @@ impl PkvStore {
     /// returns Err(GetError::NotFound) if the key does not exist in the key value store.
     pub fn get<T: DeserializeOwned>(&self, key: impl AsRef<str>) -> Result<T, GetError> {
         self.inner.get(key.as_ref())
+    }
+    /// Remove the value from the store for the given key
+    /// returns the removed value if one existed
+    pub fn remove_and_get<T: DeserializeOwned>(
+        &mut self,
+        key: impl AsRef<str>,
+    ) -> Result<Option<T>, RemoveError> {
+        self.inner.remove_and_get(key.as_ref())
+    }
+    /// Remove the value from the store for the given key
+    pub fn remove(&mut self, key: impl AsRef<str>) -> Result<(), RemoveError> {
+        self.inner.remove(key.as_ref())
     }
 
     /// Clear all key values data
@@ -236,5 +254,32 @@ mod tests {
         };
         store.set("user", &user).unwrap();
         assert_eq!(store.get::<User>("user").unwrap(), user);
+    }
+
+    #[test]
+    fn remove() {
+        setup();
+        let mut store = PkvStore::new("BevyPkv", "test_remove");
+        let user = User {
+            name: "alice".to_string(),
+            age: 32,
+        };
+        store.set("user", &user).unwrap();
+        store.remove("user").unwrap();
+        assert_eq!(store.get::<User>("user").ok(), None);
+    }
+
+    #[test]
+    fn remove_and_get() {
+        setup();
+        let mut store = PkvStore::new("BevyPkv", "test_remove_and_get");
+        let user = User {
+            name: "alice".to_string(),
+            age: 32,
+        };
+        store.set("user", &user).unwrap();
+        let removed_user = store.remove_and_get::<User>("user").unwrap().unwrap();
+        assert_eq!(user, removed_user);
+        assert_eq!(store.get::<User>("user").ok(), None);
     }
 }

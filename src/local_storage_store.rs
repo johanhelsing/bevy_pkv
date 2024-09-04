@@ -27,6 +27,19 @@ pub enum SetError {
     Clear(wasm_bindgen::JsValue),
 }
 
+
+#[derive(thiserror::Error, Debug)]
+pub enum RemoveError {
+    #[error("No value found for the given key")]
+    NotFound,
+    #[error("error deserializing json")]
+    Json(#[from] serde_json::Error),
+    #[error("JavaScript error from getItem")]
+    GetItem(wasm_bindgen::JsValue),
+    #[error("JavaScript error from clear")]
+    Clear(wasm_bindgen::JsValue),
+}
+
 impl LocalStorageStore {
     fn storage(&self) -> web_sys::Storage {
         web_sys::window()
@@ -59,6 +72,7 @@ impl LocalStorageStore {
 impl StoreImpl for LocalStorageStore {
     type GetError = GetError;
     type SetError = SetError;
+    type RemoveError = RemoveError;
 
     fn set_string(&mut self, key: &str, value: &str) -> Result<(), SetError> {
         let json = serde_json::to_string(value)?;
@@ -98,5 +112,21 @@ impl StoreImpl for LocalStorageStore {
             }
         }
         Ok(())
+    }
+    
+    fn remove(&mut self, key: &str) -> Result<(), Self::RemoveError> {
+        let storage = self.storage();
+        let key = self.format_key(key);
+        storage.remove_item(&key).map_err(RemoveError::Clear)?;
+        Ok(())
+    }
+    
+    fn remove_and_get<T: serde::de::DeserializeOwned>(
+        &mut self,
+        key: &str,
+    ) -> Result<Option<T>, Self::RemoveError> {
+        let previous_value = self.get(key).map_err(|_| RemoveError::NotFound)?;
+        self.remove(key)?;
+        Ok(Some(previous_value))
     }
 }

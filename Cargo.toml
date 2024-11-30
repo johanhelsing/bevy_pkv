@@ -10,7 +10,7 @@ categories = ["game-development"]
 repository = "https://github.com/johanhelsing/bevy_pkv"
 
 [dependencies]
-thiserror = "1.0"
+thiserror = "2"
 serde = { version = "1", features = ["derive"] }
 bevy_ecs = { version = "0.15", optional = true }   # we need for deriving Resource in PkvStore
 

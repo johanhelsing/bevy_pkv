@@ -1,7 +1,7 @@
 use crate::Location;
 use std::path::Path;
 
-impl<'a> Location<'a> {
+impl Location<'_> {
     pub fn get_path(&self) -> std::path::PathBuf {
         match self {
             Self::CustomPath(path) => path.to_path_buf(),

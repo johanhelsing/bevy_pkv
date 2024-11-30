@@ -8,7 +8,7 @@ name: ci
 
 jobs:
   check-default:
-    name: Check default (sled)
+    name: Check default (redb)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -44,7 +44,7 @@ jobs:
         run: cargo check --all-targets --no-default-features --features rocksdb
 
   check-redb:
-    name: Check redb
+    name: Check sled
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -59,7 +59,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Check
-        run: cargo check --all-targets --no-default-features --features redb
+        run: cargo check --all-targets --no-default-features --features sled
 
   check-wasm:
     name: Check wasm

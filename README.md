@@ -95,7 +95,8 @@ The `main` branch targets the latest bevy release.
 
 |bevy|bevy\_pkv|
 |----|---|
-|0.14|0.11, main|
+|0.15|0.12, main|
+|0.14|0.11|
 |0.13|0.10|
 |0.12|0.9|
 |0.11|0.8|

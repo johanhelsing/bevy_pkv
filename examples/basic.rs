@@ -1,4 +1,5 @@
 use bevy::{log::LogPlugin, prelude::*};
+use bevy_ecs::error::info;
 use bevy_pkv::PkvStore;
 use serde::{Deserialize, Serialize};
 
@@ -12,6 +13,7 @@ fn setup(mut pkv: ResMut<PkvStore>) {
     if let Ok(username) = pkv.get::<String>("username") {
         info!("Welcome back {username}");
     } else {
+        info!("First time user, setting username to 'alice'");
         pkv.set_string("username", "alice")
             .expect("failed to store username");
 
@@ -24,6 +26,7 @@ fn setup(mut pkv: ResMut<PkvStore>) {
     if let Ok(user) = pkv.get::<User>("user") {
         info!("Welcome back {}", user.name);
     } else {
+        info!("First time user, setting user to 'bob'");
         let user = User {
             name: "bob".to_string(),
         };

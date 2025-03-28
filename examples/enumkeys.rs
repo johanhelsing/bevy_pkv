@@ -12,6 +12,7 @@ fn setup(mut pkv: ResMut<PkvStore>) {
     if let Ok(username) = pkv.get::<String>(PkvKeys::UserName) {
         info!("Welcome back {username}");
     } else {
+        info!("First time user, setting username to 'alice'");
         pkv.set_string(PkvKeys::UserName, "alice")
             .expect("failed to store username");
 
@@ -24,6 +25,7 @@ fn setup(mut pkv: ResMut<PkvStore>) {
     if let Ok(user) = pkv.get::<User>(PkvKeys::User) {
         info!("Welcome back {}", user.name);
     } else {
+        info!("First time user, setting user to 'bob'");
         let user = User {
             name: "bob".to_string(),
         };

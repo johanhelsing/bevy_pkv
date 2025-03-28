@@ -1,5 +1,4 @@
 use bevy::{log::LogPlugin, prelude::*};
-use bevy_ecs::error::info;
 use bevy_pkv::PkvStore;
 use serde::{Deserialize, Serialize};
 

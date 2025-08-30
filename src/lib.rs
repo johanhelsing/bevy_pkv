@@ -11,6 +11,12 @@ compile_error!("either the \"rocksdb\", \"redb\" or \"sled\" feature must be ena
 
 use serde::{de::DeserializeOwned, Serialize};
 
+#[cfg(feature = "bevy")]
+mod persistent_resource;
+
+#[cfg(feature = "bevy")]
+pub use persistent_resource::{PersistentResourceAppExtensions, PersistentResourcePlugin};
+
 trait StoreImpl {
     type GetError;
     type SetError;

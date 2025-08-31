@@ -75,7 +75,7 @@ For resources that should automatically persist when they change, use the conven
 
 ```rust ignore
 use bevy::prelude::*;
-use bevy_pkv::{PkvStore, PersistentResourceAppExtensions};
+use bevy_pkv::prelude::*;
 use serde::{Serialize, Deserialize};
 
 #[derive(Resource, Serialize, Deserialize, Default)]

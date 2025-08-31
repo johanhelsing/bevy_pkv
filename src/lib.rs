@@ -17,6 +17,8 @@ mod persistent_resource;
 #[cfg(feature = "bevy")]
 pub use persistent_resource::{PersistentResourceAppExtensions, PersistentResourcePlugin};
 
+pub mod prelude;
+
 trait StoreImpl {
     type GetError;
     type SetError;

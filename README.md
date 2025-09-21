@@ -47,7 +47,9 @@ fn setup(mut pkv: ResMut<PkvStore>) {
 }
 ```
 
-Using your own types implementing `serde::Serialize` and `Deserialize`:
+### Using Custom Types
+
+You can also store and retrieve your own types that implement `serde::Serialize` and `Deserialize`:
 
 ```rust ignore
 #[derive(Serialize, Deserialize)]
@@ -66,6 +68,30 @@ fn setup(mut pkv: ResMut<PkvStore>) {
     }
 }
 ```
+
+### Persistent Resources
+
+For resources that should automatically persist when they change, use the convenient `init_persistent_resource` API:
+
+```rust ignore
+use bevy::prelude::*;
+use bevy_pkv::prelude::*;
+use serde::{Serialize, Deserialize};
+
+#[derive(Resource, Serialize, Deserialize, Default)]
+struct GameSettings {
+    volume: f32,
+    difficulty: u8,
+}
+
+App::new()
+    .add_plugins(DefaultPlugins)
+    .insert_resource(PkvStore::new("FooCompany", "BarGame"))
+    .init_persistent_resource::<GameSettings>()
+    .run();
+```
+
+This automatically loads the resource from storage on startup and saves it whenever it changes!
 
 See the [examples](./examples) for further usage
 

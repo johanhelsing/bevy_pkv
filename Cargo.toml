@@ -13,10 +13,11 @@ repository = "https://github.com/johanhelsing/bevy_pkv"
 thiserror = "2"
 serde = { version = "1", features = ["derive"] }
 bevy_ecs = { version = "0.16.0-rc.2", optional = true }   # we need for deriving Resource in PkvStore
+bevy_app = { version = "0.16.0-rc.2", optional = true }   # we need for Plugin trait and App type
 
 [features]
 default = ["bevy", "redb"]
-bevy = ["dep:bevy_ecs"]
+bevy = ["dep:bevy_ecs", "dep:bevy_app"]
 rocksdb = ["dep:rocksdb"]
 sled = ["dep:sled"]
 redb = ["dep:redb"]
@@ -66,4 +67,8 @@ required-features = ["bevy"]
 
 [[example]]
 name = "enumkeys"
+required-features = ["bevy"]
+
+[[example]]
+name = "persistent_resource"
 required-features = ["bevy"]

@@ -72,6 +72,7 @@ pub struct PkvStore {
     inner: backend::InnerStore,
 }
 
+#[allow(clippy::result_large_err)]
 impl PkvStore {
     /// Creates or opens a persistent key value store
     ///
@@ -139,6 +140,7 @@ impl PkvStore {
     ) -> Result<Option<T>, RemoveError> {
         self.inner.remove_and_get(key.as_ref())
     }
+
     /// Remove the value from the store for the given key
     pub fn remove(&mut self, key: impl AsRef<str>) -> Result<(), RemoveError> {
         self.inner.remove(key.as_ref())

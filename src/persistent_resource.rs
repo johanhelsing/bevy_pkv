@@ -38,13 +38,13 @@ use crate::PkvStore;
 ///
 /// // For types that implement Default, you can use new():
 /// App::new()
-///     .insert_resource(PkvStore::new("MyGame", "Settings"))
+///     .insert_resource(PkvStore::new("ExampleOrg", "ExampleApp"))
 ///     .add_plugins(PersistentResourcePlugin::<GameSettings>::new())
 ///     .run();
 ///
 /// // Or with a custom factory function (works for any type, with or without Default):
 /// App::new()
-///     .insert_resource(PkvStore::new("MyGame", "Settings"))
+///     .insert_resource(PkvStore::new("ExampleOrg", "ExampleApp"))
 ///     .add_plugins(PersistentResourcePlugin::<GameSettings>::with_default(|| GameSettings {
 ///         volume: 0.8,
 ///         difficulty: 2,
@@ -58,7 +58,7 @@ use crate::PkvStore;
 /// }
 ///
 /// App::new()
-///     .insert_resource(PkvStore::new("MyGame", "Settings"))
+///     .insert_resource(PkvStore::new("ExampleOrg", "ExampleApp"))
 ///     .add_plugins(PersistentResourcePlugin::<CustomSettings>::with_default(|| CustomSettings {
 ///         name: "Player".to_string(),
 ///     }))

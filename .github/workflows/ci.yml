@@ -11,147 +11,78 @@ jobs:
     name: Check default (redb)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Check
-        run: cargo check --all-targets
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --all-targets
 
   check-rocksdb:
     name: Check rocksdb
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Check
-        run: cargo check --all-targets --no-default-features --features rocksdb
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --all-targets --no-default-features --features rocksdb
 
   check-redb:
     name: Check sled
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Check
-        run: cargo check --all-targets --no-default-features --features sled
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --all-targets --no-default-features --features sled
 
   check-wasm:
     name: Check wasm
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install stable toolchain
+      - uses: actions/checkout@v3
+      - name: Install wasm toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
           target: wasm32-unknown-unknown
-
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Check
-        run: RUSTFLAGS='--cfg=getrandom_backend="wasm_js"' cargo check --target wasm32-unknown-unknown --all-targets
+      - uses: Swatinem/rust-cache@v2
+      - run: RUSTFLAGS='--cfg=getrandom_backend="wasm_js"' cargo check --target wasm32-unknown-unknown --all-targets
 
   test-default:
-    name: Test default (sled)
+    name: Test default (redb)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Test
-        run: cargo test
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test
 
   test-rocksdb:
     name: Test rocksdb
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --no-default-features --features rocksdb
 
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Test
-        run: cargo test --no-default-features --features rocksdb
-
-  test-redb:
-    name: Test redb
+  test-sled:
+    name: Test sled
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Test
-        run: cargo test --no-default-features --features redb
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --no-default-features --features sled
 
   lints:
     name: Lints
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
           components: rustfmt, clippy
-
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Fmt
-        run: cargo fmt --all -- --check
-
-      - name: Clippy
-        run: cargo clippy -- -D warnings
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy -- -D warnings

@@ -78,7 +78,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Check
-        run: cargo check --target wasm32-unknown-unknown --all-targets
+        run: RUSTFLAGS='--cfg=getrandom_backend="wasm_js"' cargo check --target wasm32-unknown-unknown --all-targets
 
   test-default:
     name: Test default (sled)

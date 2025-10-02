@@ -1,5 +1,5 @@
 use crate::{Location, StoreImpl};
-use redb::{Database, TableDefinition};
+use redb::{Database, ReadableDatabase, TableDefinition};
 use serde::{de::DeserializeOwned, Serialize};
 use std::fmt::{Debug, Formatter};
 pub struct ReDbStore {

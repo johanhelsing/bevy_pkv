@@ -53,6 +53,12 @@ impl SledStore {
         let db = sled::open(db_path).expect("Failed to init key value store");
         Self { db }
     }
+
+    pub(crate) fn new_with_filename(location: Location, filename: &str) -> Self {
+        let db_path = location.get_path().join(filename);
+        let db = sled::open(db_path).expect("Failed to init key value store");
+        Self { db }
+    }
 }
 
 impl StoreImpl for SledStore {

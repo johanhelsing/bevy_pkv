@@ -120,6 +120,16 @@ impl PkvStore {
         Self { inner }
     }
 
+    /// Creates or opens a persistent key value store
+    ///
+    /// Like [`PkvStore::new_in_dir`], but allows specifying a filename.
+    #[cfg(any(sled_backend, rocksdb_backend, redb_backend))]
+    pub fn new_in_dir_with_filename<P: AsRef<std::path::Path>>(path: P, filename: &str) -> Self {
+        let inner =
+            backend::InnerStore::new_with_filename(Location::CustomPath(path.as_ref()), filename);
+        Self { inner }
+    }
+
     fn new_in_location(config: &PlatformDefault) -> Self {
         let inner = backend::InnerStore::new(Location::PlatformDefault(config));
         Self { inner }

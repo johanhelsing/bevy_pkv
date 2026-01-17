@@ -57,6 +57,17 @@ impl RocksDBStore {
         let db = rocksdb::DB::open(&options, db_path).expect("Failed to init key value store");
         Self { db }
     }
+
+    pub(crate) fn new_with_filename(location: Location, filename: &str) -> Self {
+        let mut options = rocksdb::Options::default();
+        options.set_error_if_exists(false);
+        options.create_if_missing(true);
+        options.create_missing_column_families(true);
+
+        let db_path = location.get_path().join(filename);
+        let db = rocksdb::DB::open(&options, db_path).expect("Failed to init key value store");
+        Self { db }
+    }
 }
 
 impl StoreImpl for RocksDBStore {

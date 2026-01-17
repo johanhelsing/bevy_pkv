@@ -87,6 +87,20 @@ impl ReDbStore {
 
         Self { db }
     }
+
+    pub(crate) fn new_with_filename(location: Location, filename: &str) -> Self {
+        let dir_path = location.get_path();
+        std::fs::create_dir_all(&dir_path)
+            .expect("Failed to create directory to init key value store");
+        let db_path = dir_path.join(filename);
+        let db = Database::create(db_path).expect("Failed to init key value store");
+
+        let write_txn = db.begin_write().unwrap();
+        write_txn.open_table(TABLE).unwrap();
+        write_txn.commit().unwrap();
+
+        Self { db }
+    }
 }
 
 const TABLE: TableDefinition<&str, &[u8]> = TableDefinition::new("redb");
